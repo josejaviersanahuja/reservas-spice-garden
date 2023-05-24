@@ -4,6 +4,22 @@
 -- CREATE DATABASE spice_garden;
 
 -- \c spice_garden;
+
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(50) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+INSERT INTO users (username, password) VALUES ('reception', 'Welcome123');
+INSERT INTO users (username, password) VALUES ('cocina', 'Cocina123');
+INSERT INTO users (username, password) VALUES ('maitre', 'Maitre123');
+INSERT INTO users (username, password) VALUES ('direccion', 'Direccion123');
 DROP TABLE IF EXISTS restaurant_themes;
 
 CREATE TABLE restaurant_themes (

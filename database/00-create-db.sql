@@ -3,3 +3,4 @@
 -- CREATE DATABASE spice_garden;
 
 -- \c spice_garden;
+

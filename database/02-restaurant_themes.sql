@@ -7,8 +7,7 @@ CREATE TABLE restaurant_themes (
   image_url VARCHAR(255),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  is_deleted BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (id)
+  is_deleted BOOLEAN DEFAULT FALSE
 );
 
 INSERT INTO restaurant_themes (name, description, image_url) VALUES
