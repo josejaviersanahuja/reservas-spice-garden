@@ -14,3 +14,4 @@ INSERT INTO restaurant_themes (name, description, image_url) VALUES
 ('Restaurante Mexicano', 'Restaurante de comida mexicana', ''),
 ('Restaurante Italiano', 'Restaurante de comida italiana', ''),
 ('Restaurante Hindú', 'Restaurante de comida hindú', '');
+

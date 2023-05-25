@@ -1,6 +1,6 @@
--- DROP DATABASE IF EXISTS spice_garden;
+-- \c postgres;
 
--- CREATE DATABASE spice_garden;
-
--- \c spice_garden;
+DROP DATABASE IF EXISTS spice_garden;
+CREATE DATABASE spice_garden;
+\c spice_garden;
 
