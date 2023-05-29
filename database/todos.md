@@ -1,24 +1,29 @@
 @TODO functions views and more
-
+```sql
 CREATE OR REPLACE FUNCTION get_assistants(fecha_in DATE)
-RETURNS TABLE (reserved INT, assistants INT) AS $$
+RETURNS TABLE (num_standard_res INT, num_no_show_res INT, num_pax INT) AS $$
 DECLARE
-    total_reserved INT;
-    total_assistants INT;
+    total_standard_res INT;
+    total_no_show_res INT;
+    total_pax INT;
 BEGIN
-    SELECT COUNT(*) INTO total_reserved
-    FROM reservations
-    WHERE fecha = fecha_in AND is_deleted = FALSE;
+    SELECT COUNT(*) INTO total_standard_res
+    FROM standard_reservations
+    WHERE fecha = fecha_in;
 
-    SELECT COUNT(*) INTO total_assistants
-    FROM reservations
-    WHERE fecha = fecha_in AND is_noshow = FALSE AND is_deleted = FALSE;
+    SELECT COUNT(*) INTO total_no_show_res
+    FROM no_show_reservations
+    WHERE fecha = fecha_in;
 
-    RETURN QUERY SELECT total_reserved, total_assistants;
+    SELECT SUM(pax_number) INTO total_pax
+    FROM standard_reservations
+    WHERE fecha = fecha_in;
+
+    RETURN QUERY SELECT total_standard_res, total_no_show_res, total_pax;
 END;
 $$ LANGUAGE plpgsql;
-
-SELECT * FROM obtener_asistencia('2023-05-29');
+```
+SELECT * FROM get_assistants('2023-05-29');
 
 -- trigers
 
@@ -37,6 +42,7 @@ EXECUTE FUNCTION update_updated_at();
 
 En el código anterior, reemplaza tu_tabla por el nombre de la tabla en la que deseas actualizar el campo updated_at. El trigger se ejecutará antes de una operación de actualización (BEFORE UPDATE) en cada fila (FOR EACH ROW) y llamará a la función update_updated_at(). Dentro de la función, asignamos el valor actual de la fecha y hora (NOW()) al campo updated_at de la fila actual (NEW). Finalmente, devolvemos NEW para que la actualización se realice correctamente.
 
+```sql
 CREATE VIEW no_show_reservations AS
 SELECT *
 FROM reservations
@@ -51,7 +57,9 @@ CREATE VIEW standard_reservations AS
 SELECT *
 FROM reservations
 WHERE is_deleted = FALSE AND is_noshow = FALSE;
-
+```
+check query and create a view with it. 
+```sql
 SELECT
   agenda.fecha,
   ARRAY_AGG(standard_reservations.*) AS standard_reservations,
@@ -70,7 +78,9 @@ LEFT JOIN
   restaurant_themes ON agenda.restaurant_theme_id = restaurant_themes.id
 GROUP BY
   agenda.fecha;
-
+```
+Función parece estar mal planteada. Replantear con parametros de entrada como fecha_i y fecha_f
+```sql
 CREATE OR REPLACE FUNCTION get_monthly_statistics()
 RETURNS TABLE (fecha DATE, theme_name VARCHAR(255), reserved INT, assistants INT, total_cash NUMERIC(10, 2), total_bonus INT) AS $$
 BEGIN
@@ -107,7 +117,9 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
-
+```
+También parece estar mal planteada, parametros de entrada fecha_i, fecha_f
+```sql
 CREATE OR REPLACE FUNCTION get_percentage_per_theme()
 RETURNS TABLE (theme_name VARCHAR(255), percentage FLOAT) AS $$
 BEGIN
@@ -128,10 +140,11 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
+```
 
 CREATE INDEX idx_reservations_res_number ON reservations (res_number);
 
-UPSERT
+INSERT
 Método: POST
 Ruta: /reservations
 Descripción: Crea una nueva reserva en el restaurante.
@@ -139,6 +152,7 @@ Parámetros de entrada: Datos de la reserva (fecha, hora, res_name, room, is_bon
 Respuesta: Código de estado y detalles de la reserva creada.
 SuccessCode: 201
 
+```sql
 CREATE OR REPLACE FUNCTION insert_reservation(
   _fecha DATE,
   _hora TIME_OPTIONS_ENUM,
@@ -202,6 +216,7 @@ SELECT insert_reservation(
   'No special instructions',
   FALSE
 ) AS new_reservation;
+```
 
 Obtener las reservas del spice garden hechas por el numero de rserva del hotel
 Método: GET
@@ -209,6 +224,7 @@ Ruta: /reservations/{res_number}
 Descripción: Obtiene Todas las reservas del restaurant hechas bajo la misma reserva del hotel.
 Parámetros de entrada: Número de reserva (res_number).
 Respuesta: Array de reservas hechas, potencialmente por el mismo cliente.
+```sql
 CREATE OR REPLACE FUNCTION get_payable_reservations(reservation_number INTEGER)
 RETURNS TABLE (
   fecha DATE,
@@ -235,11 +251,63 @@ BEGIN
     AND reservations.is_deleted = FALSE;
 END;
 $$ LANGUAGE plpgsql;
-
+```
 {
     with_bonus: SELECT * FROM get_bonus_reservations(res_number),
     payable: SELECT * FROM get_payable_reservations(res_number)
 }
+
+Editar una reserva
+Método: PUT
+Ruta: /reservations/{id}
+Descripción: Edita una reserva existente.
+Parámetros de entrada: id de reserva (id).
+Respuesta: Código de estado y nuevos datos.
+
+```sql
+CREATE OR REPLACE FUNCTION update_reservation(
+  _id INTEGER,
+  _fecha DATE,
+  _hora TIME_OPTIONS_ENUM,
+  _res_number INTEGER,
+  _res_name VARCHAR(100),
+  _room ROOM_OPTIONS_ENUM,
+  _is_bonus BOOLEAN,
+  _bonus_qty INTEGER,
+  _meal_plan MEAL_PLAN_ENUM,
+  _pax_number INTEGER,
+  _cost NUMERIC(10,2),
+  _observations TEXT,
+  _is_noshow BOOLEAN
+) RETURNS reservations AS $$
+DECLARE
+  updated_reservation reservations;
+BEGIN
+  UPDATE reservations
+  SET
+    fecha = _fecha,
+    hora = _hora,
+    res_number = _res_number,
+    res_name = _res_name,
+    room = _room,
+    is_bonus = _is_bonus,
+    bonus_qty = _bonus_qty,
+    meal_plan = _meal_plan,
+    pax_number = _pax_number,
+    cost = _cost,
+    observations = _observations,
+    is_noshow = _is_noshow
+  WHERE id = _id
+  RETURNING * INTO updated_reservation;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'El update falló en la base de datos.';
+  END IF;
+
+  RETURN updated_reservation;
+END;
+$$ LANGUAGE plpgsql;
+```
 
 Eliminar una reserva
 Método: DELETE
