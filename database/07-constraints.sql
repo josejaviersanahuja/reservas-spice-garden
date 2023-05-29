@@ -14,7 +14,7 @@ ON UPDATE CASCADE;
 
 ALTER TABLE reservations
 ADD CONSTRAINT fk_reservations_agenda
-FOREIGN KEY (date)
-REFERENCES agenda(date)
+FOREIGN KEY (fecha)
+REFERENCES agenda(fecha)
 ON DELETE CASCADE
 ON UPDATE CASCADE;

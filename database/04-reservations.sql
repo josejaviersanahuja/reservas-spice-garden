@@ -22,17 +22,20 @@ CREATE TYPE ROOM_OPTIONS_ENUM AS ENUM (
 );
 
 CREATE TABLE reservations (
-  date DATE NOT NULL DEFAULT CURRENT_DATE,
-  time TIME_OPTIONS_ENUM NOT NULL,
-  res_number VARCHAR(20),
-  name VARCHAR(100),
-  room ROOM_OPTIONS_ENUM,
-  meal_plan MEAL_PLAN_ENUM,
+  fecha DATE NOT NULL DEFAULT CURRENT_DATE,
+  hora TIME_OPTIONS_ENUM NOT NULL,
+  res_number INTEGER NOT NULL DEFAULT 0, -- reservation number, if there isn't one, use 0
+  res_name VARCHAR(100),
+  room ROOM_OPTIONS_ENUM, -- if res number is 0, room must be S/N
+  is_bonus BOOLEAN DEFAULT FALSE, -- if true, means cost is 0 and bonus_qty is > 0 Meal plan is AI
+  bonus_qty INTEGER DEFAULT 0,
+  meal_plan MEAL_PLAN_ENUM, -- if is_bonus is true, meal_plan must be AI
   pax_number INTEGER,
-  cost NUMERIC(10,2),
+  cost NUMERIC(10,2), -- if is_bonus is true, cost must be 0
   observations TEXT,
+  is_noshow BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   is_deleted BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (date, time, res_number, name, room)
+  PRIMARY KEY (fecha, hora, res_number, res_name, room)
 );

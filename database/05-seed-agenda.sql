@@ -1,5 +1,5 @@
 
-INSERT INTO agenda (date, restaurant_theme_id) VALUES 
+INSERT INTO agenda (fecha, restaurant_theme_id) VALUES 
 ('2023-05-01', 1),
 ('2023-05-02', 2),
 ('2023-05-03', 1),
