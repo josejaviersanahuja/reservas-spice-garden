@@ -7,6 +7,7 @@
 
 CREATE OR REPLACE FUNCTION get_bonus_reservations(reservation_number INTEGER)
 RETURNS TABLE (
+  id INTEGER,
   fecha DATE,
   hora TIME_OPTIONS_ENUM,
   res_number INTEGER,
@@ -71,7 +72,7 @@ BEGIN
     AND reservations.hora = in_hora
     AND reservations.is_deleted = FALSE;
   IF max_seats IS NULL THEN
-    RETURN -1; -- fecha no encontrada en agenda
+    RETURN -100; -- fecha no encontrada en agenda
   ELSIF reserved_seats IS NULL THEN
     RETURN max_seats; -- no hay reservas para esa fecha y hora
   ELSE
