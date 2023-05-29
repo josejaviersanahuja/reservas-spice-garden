@@ -22,6 +22,7 @@ CREATE TYPE ROOM_OPTIONS_ENUM AS ENUM (
 );
 
 CREATE TABLE reservations (
+  id SERIAL PRIMARY KEY,
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
   hora TIME_OPTIONS_ENUM NOT NULL,
   res_number INTEGER NOT NULL DEFAULT 0, -- reservation number, if there isn't one, use 0
@@ -36,6 +37,5 @@ CREATE TABLE reservations (
   is_noshow BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  is_deleted BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (fecha, hora, res_number, res_name, room)
+  is_deleted BOOLEAN DEFAULT FALSE
 );
