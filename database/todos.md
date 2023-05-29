@@ -129,3 +129,149 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE INDEX idx_reservations_res_number ON reservations (res_number);
+
+Crear una reserva
+
+Método: POST
+Ruta: /reservations
+Descripción: Crea una nueva reserva en el restaurante.
+Parámetros de entrada: Datos de la reserva (fecha, hora, res_name, room, is_bonus, bonus_qty, meal_plan, pax_number, cost, observations).
+Respuesta: Código de estado y detalles de la reserva creada.
+Obtener una reserva
+
+Método: GET
+Ruta: /reservations/{res_number}
+Descripción: Obtiene los detalles de una reserva específica.
+Parámetros de entrada: Número de reserva (res_number).
+Respuesta: Código de estado y detalles de la reserva encontrada.
+Actualizar una reserva
+
+Método: PUT
+Ruta: /reservations/{res_number}
+Descripción: Actualiza los detalles de una reserva existente.
+Parámetros de entrada: Número de reserva (res_number) y datos actualizados de la reserva.
+Respuesta: Código de estado y detalles de la reserva actualizada.
+Eliminar una reserva
+
+Método: DELETE
+Ruta: /reservations/{res_number}
+Descripción: Elimina una reserva existente.
+Parámetros de entrada: Número de reserva (res_number).
+Respuesta: Código de estado y mensaje de confirmación.
+Obtener disponibilidad de asientos
+
+Método: GET
+Ruta: /availability
+Descripción: Obtiene la disponibilidad de asientos para una fecha y hora específicas.
+Parámetros de entrada: Fecha (fecha) y hora (hora).
+Respuesta: Código de estado y número de asientos disponibles.
+Obtener estadísticas mensuales
+
+Método: GET
+Ruta: /statistics/monthly
+Descripción: Obtiene las estadísticas mensuales de reservas del restaurante.
+Parámetros de entrada: Ninguno.
+Respuesta: Código de estado y detalles de las estadísticas mensuales.
+Obtener porcentaje de reservas por tema
+
+Método: GET
+Ruta: /statistics/themes
+Descripción: Obtiene el porcentaje de reservas por tema de restaurante.
+Parámetros de entrada: Ninguno.
+Respuesta: Código de estado y detalles del porcentaje de reservas por tema.
+
+Obtener todas las agendas:
+
+Método: GET
+Ruta: /agendas
+Descripción: Retorna todas las agendas disponibles.
+Respuesta exitosa (código 200):
+
+Obtener una agenda específica:
+
+Método: GET
+Ruta: /agendas/{fecha}
+Descripción: Retorna los detalles de una agenda específica.
+Respuesta exitosa (código 200):
+
+Crear una nueva agenda:
+
+Método: POST
+Ruta: /agendas
+Descripción: Crea una nueva agenda.
+Cuerpo de la solicitud:
+json
+Copy code
+{
+  "fecha": "2023-05-30",
+  "restaurant_theme_id": 2,
+  "t1900": 8,
+  "t1915": 6,
+  ...
+}
+Respuesta exitosa (código 201):
+json
+Copy code
+{
+  "fecha": "2023-05-30",
+  "restaurant_theme_id": 2,
+  "t1900": 8,
+  "t1915": 6,
+  ...
+}
+
+Actualizar una agenda existente:
+
+Método: PUT
+Ruta: /agendas/{fecha}
+Descripción: Actualiza los detalles de una agenda existente.
+Cuerpo de la solicitud:
+json
+Copy code
+{
+  "restaurant_theme_id": 3,
+  "t1900": 12,
+  "t1915": 10,
+  ...
+}
+Respuesta exitosa (código 200):
+json
+Copy code
+{
+  "fecha": "2023-05-29",
+  "restaurant_theme_id": 3,
+  "t1900": 12,
+  "t1915": 10,
+  ...
+}
+Eliminar una agenda:
+
+Método: DELETE
+Ruta: /agendas/{fecha}
+Descripción: Elimina una agenda existente.
+Respuesta exitosa (código 204)
+Endpoints para la entidad "restaurant_themes":
+Obtener todos los temas de restaurantes:
+
+Método: GET
+Ruta: /restaurant_themes
+Descripción: Retorna todos los temas de restaurantes disponibles.
+Respuesta exitosa (código 200):
+json
+Copy code
+{
+  "restaurant_themes": [
+    {
+      "id": 1,
+      "theme_name": "Restaurante Mexicano",
+      "description": "Restaurante de comida mexicana",
+      "image_url": ""
+    },
+    ...
+  ]
+}
+Obtener un tema de restaurante específico:
+
+Método: GET
+Ruta
