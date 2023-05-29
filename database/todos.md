@@ -131,29 +131,117 @@ $$ LANGUAGE plpgsql;
 
 CREATE INDEX idx_reservations_res_number ON reservations (res_number);
 
-Crear una reserva
-
+UPSERT
 Método: POST
 Ruta: /reservations
 Descripción: Crea una nueva reserva en el restaurante.
 Parámetros de entrada: Datos de la reserva (fecha, hora, res_name, room, is_bonus, bonus_qty, meal_plan, pax_number, cost, observations).
 Respuesta: Código de estado y detalles de la reserva creada.
-Obtener una reserva
+SuccessCode: 201
 
+CREATE OR REPLACE FUNCTION insert_reservation(
+  _fecha DATE,
+  _hora TIME_OPTIONS_ENUM,
+  _res_number INTEGER,
+  _res_name VARCHAR(100),
+  _room ROOM_OPTIONS_ENUM,
+  _is_bonus BOOLEAN,
+  _bonus_qty INTEGER,
+  _meal_plan MEAL_PLAN_ENUM,
+  _pax_number INTEGER,
+  _cost NUMERIC(10,2),
+  _observations TEXT,
+  _is_noshow BOOLEAN
+) RETURNS reservations AS $$
+DECLARE
+  inserted_reservation reservations;
+BEGIN
+  INSERT INTO reservations (
+    fecha,
+    hora,
+    res_number,
+    res_name,
+    room,
+    is_bonus,
+    bonus_qty,
+    meal_plan,
+    pax_number,
+    cost,
+    observations,
+    is_noshow
+  ) VALUES (
+    _fecha,
+    _hora,
+    _res_number,
+    _res_name,
+    _room,
+    _is_bonus,
+    _bonus_qty,
+    _meal_plan,
+    _pax_number,
+    _cost,
+    _observations,
+    _is_noshow
+  )
+  RETURNING * INTO inserted_reservation;
+
+  RETURN inserted_reservation;
+END;
+$$ LANGUAGE plpgsql;
+SELECT insert_reservation(
+  '2023-05-30',
+  '12:00',
+  1,
+  'John Doe',
+  'S',
+  FALSE,
+  0,
+  NULL,
+  2,
+  50.00,
+  'No special instructions',
+  FALSE
+) AS new_reservation;
+
+Obtener las reservas del spice garden hechas por el numero de rserva del hotel
 Método: GET
 Ruta: /reservations/{res_number}
-Descripción: Obtiene los detalles de una reserva específica.
+Descripción: Obtiene Todas las reservas del restaurant hechas bajo la misma reserva del hotel.
 Parámetros de entrada: Número de reserva (res_number).
-Respuesta: Código de estado y detalles de la reserva encontrada.
-Actualizar una reserva
+Respuesta: Array de reservas hechas, potencialmente por el mismo cliente.
+CREATE OR REPLACE FUNCTION get_payable_reservations(reservation_number INTEGER)
+RETURNS TABLE (
+  fecha DATE,
+  hora TIME_OPTIONS_ENUM,
+  res_number INTEGER,
+  res_name VARCHAR(100),
+  room ROOM_OPTIONS_ENUM,
+  is_bonus BOOLEAN,
+  bonus_qty INTEGER,
+  meal_plan MEAL_PLAN_ENUM,
+  pax_number INTEGER,
+  cost NUMERIC(10,2),
+  observations TEXT,
+  is_noshow BOOLEAN,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  is_deleted BOOLEAN
+) AS $$
+BEGIN
+  RETURN QUERY SELECT *
+    FROM reservations 
+    WHERE reservations.res_number = reservation_number 
+    AND reservations.is_bonus = FALSE 
+    AND reservations.is_deleted = FALSE;
+END;
+$$ LANGUAGE plpgsql;
 
-Método: PUT
-Ruta: /reservations/{res_number}
-Descripción: Actualiza los detalles de una reserva existente.
-Parámetros de entrada: Número de reserva (res_number) y datos actualizados de la reserva.
-Respuesta: Código de estado y detalles de la reserva actualizada.
+{
+    with_bonus: SELECT * FROM get_bonus_reservations(res_number),
+    payable: SELECT * FROM get_payable_reservations(res_number)
+}
+
 Eliminar una reserva
-
 Método: DELETE
 Ruta: /reservations/{res_number}
 Descripción: Elimina una reserva existente.
