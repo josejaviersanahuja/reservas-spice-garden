@@ -519,3 +519,74 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION update_agenda(_fecha DATE, _restaurant_theme_id INTEGER DEFAULT NULL,
+                                        _t1900 INTEGER DEFAULT NULL, _t1915 INTEGER DEFAULT NULL,
+                                        _t1930 INTEGER DEFAULT NULL, _t1945 INTEGER DEFAULT NULL,
+                                        _t2000 INTEGER DEFAULT NULL, _t2015 INTEGER DEFAULT NULL,
+                                        _t2030 INTEGER DEFAULT NULL, _t2045 INTEGER DEFAULT NULL,
+                                        _t2100 INTEGER DEFAULT NULL, _t2115 INTEGER DEFAULT NULL,
+                                        _t2130 INTEGER DEFAULT NULL, _t2145 INTEGER DEFAULT NULL)
+RETURNS JSON AS $$
+DECLARE
+    agenda_info JSON;
+BEGIN
+    -- Verificar si la fecha es anterior al CURRENT_DATE
+    IF _fecha < CURRENT_DATE THEN
+        RAISE EXCEPTION 'No se puede modificar una agenda pasada';
+    END IF;
+
+    -- Actualizar los campos modificables de la tabla agenda
+    UPDATE agenda
+    SET
+        restaurant_theme_id = COALESCE(_restaurant_theme_id, agenda.restaurant_theme_id),
+        t1900 = COALESCE(_t1900, agenda.t1900),
+        t1915 = COALESCE(_t1915, agenda.t1915),
+        t1930 = COALESCE(_t1930, agenda.t1930),
+        t1945 = COALESCE(_t1945, agenda.t1945),
+        t2000 = COALESCE(_t2000, agenda.t2000),
+        t2015 = COALESCE(_t2015, agenda.t2015),
+        t2030 = COALESCE(_t2030, agenda.t2030),
+        t2045 = COALESCE(_t2045, agenda.t2045),
+        t2100 = COALESCE(_t2100, agenda.t2100),
+        t2115 = COALESCE(_t2115, agenda.t2115),
+        t2130 = COALESCE(_t2130, agenda.t2130),
+        t2145 = COALESCE(_t2145, agenda.t2145),
+        updated_at = NOW()
+    WHERE
+        agenda.fecha = _fecha;
+
+    -- Obtener la información actualizada de la agenda y el tema del restaurante
+    SELECT
+        json_build_object(
+            'fecha', a.fecha,
+            'theme_name', rt.theme_name,
+            'image_url', rt.image_url,
+            'capacidad a las 19:00', a.t1900,
+            'capacidad a las 19:15', a.t1915,
+            'capacidad a las 19:30', a.t1930,
+            'capacidad a las 19:45', a.t1945,
+            'capacidad a las 20:00', a.t2000,
+            'capacidad a las 20:15', a.t2015,
+            'capacidad a las 20:30', a.t2030,
+            'capacidad a las 20:45', a.t2045,
+            'capacidad a las 21:00', a.t2100,
+            'capacidad a las 21:15', a.t2115,
+            'capacidad a las 21:30', a.t2130,
+            'capacidad a las 21:45', a.t2145
+        ) INTO agenda_info
+    FROM
+        agenda a
+    JOIN
+        restaurant_themes rt ON a.restaurant_theme_id = rt.id
+    WHERE
+        a.fecha = _fecha;
+
+    RETURN agenda_info;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Capturar y devolver el error como objeto JSON
+        RETURN json_build_object('error', SQLERRM);
+END;
+$$ LANGUAGE plpgsql;
+
