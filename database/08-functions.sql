@@ -263,3 +263,32 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_percentage_per_theme(fecha_i DATE, fecha_f DATE)
+RETURNS TABLE (theme_name VARCHAR(255), percentage NUMERIC(10,2)) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        r.theme_name,
+        (COUNT(*) * 100.0) / SUM(COUNT(*)) OVER() AS percentage
+    FROM
+        standard_reservations s
+    JOIN
+        agenda a ON s.fecha = a.fecha
+    JOIN
+        restaurant_themes r ON a.restaurant_theme_id = r.id
+    WHERE
+        s.is_deleted = FALSE AND
+        a.is_deleted = FALSE AND
+        s.is_noshow = FALSE AND
+        s.fecha >= fecha_i AND
+        s.fecha < fecha_f
+    GROUP BY
+        r.theme_name;
+
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT * FROM get_percentage_per_theme('2023-05-01','2023-05-10');
+*/
