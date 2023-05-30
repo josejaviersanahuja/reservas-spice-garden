@@ -11,7 +11,7 @@ Respuesta: Código de estado y detalles de la reserva creada.
 SuccessCode: 201
 
 ```sql
-SELECT insert_reservation(
+SELECT * FROM insert_reservation(
   '2023-05-27',
   '19:00',
   1,
@@ -33,38 +33,12 @@ Ruta: /reservations/{res_number}
 Descripción: Obtiene Todas las reservas del restaurant hechas bajo la misma reserva del hotel.
 Parámetros de entrada: Número de reserva (res_number).
 Respuesta: Array de reservas hechas, potencialmente por el mismo cliente.
-```sql
-CREATE OR REPLACE FUNCTION get_payable_reservations(reservation_number INTEGER)
-RETURNS TABLE (
-  fecha DATE,
-  hora TIME_OPTIONS_ENUM,
-  res_number INTEGER,
-  res_name VARCHAR(100),
-  room ROOM_OPTIONS_ENUM,
-  is_bonus BOOLEAN,
-  bonus_qty INTEGER,
-  meal_plan MEAL_PLAN_ENUM,
-  pax_number INTEGER,
-  cost NUMERIC(10,2),
-  observations TEXT,
-  is_noshow BOOLEAN,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  is_deleted BOOLEAN
-) AS $$
-BEGIN
-  RETURN QUERY SELECT *
-    FROM reservations 
-    WHERE reservations.res_number = reservation_number 
-    AND reservations.is_bonus = FALSE 
-    AND reservations.is_deleted = FALSE;
-END;
-$$ LANGUAGE plpgsql;
-```
+```json
 {
-    with_bonus: SELECT * FROM get_bonus_reservations(res_number),
-    payable: SELECT * FROM get_payable_reservations(res_number)
+    "with_bonus": "SELECT * FROM get_bonus_reservations(res_number)",
+    "payable": "SELECT * FROM get_payable_reservations(res_number)"
 }
+```
 
 Editar una reserva
 Método: PUT
