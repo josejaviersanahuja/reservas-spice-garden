@@ -18,3 +18,5 @@ FOREIGN KEY (fecha)
 REFERENCES agenda(fecha)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
+
+CREATE INDEX idx_reservations_res_number ON reservations (res_number);
