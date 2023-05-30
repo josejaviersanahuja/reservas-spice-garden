@@ -292,3 +292,70 @@ $$ LANGUAGE plpgsql;
 /*
 SELECT * FROM get_percentage_per_theme('2023-05-01','2023-05-10');
 */
+
+CREATE OR REPLACE FUNCTION insert_reservation(
+  _fecha DATE,
+  _hora TIME_OPTIONS_ENUM,
+  _res_number INTEGER,
+  _res_name VARCHAR(100),
+  _room ROOM_OPTIONS_ENUM,
+  _is_bonus BOOLEAN,
+  _bonus_qty INTEGER,
+  _meal_plan MEAL_PLAN_ENUM,
+  _pax_number INTEGER,
+  _cost NUMERIC(10,2),
+  _observations TEXT,
+  _is_noshow BOOLEAN
+) RETURNS reservations AS $$
+DECLARE
+  inserted_reservation reservations;
+BEGIN
+  INSERT INTO reservations (
+    fecha,
+    hora,
+    res_number,
+    res_name,
+    room,
+    is_bonus,
+    bonus_qty,
+    meal_plan,
+    pax_number,
+    cost,
+    observations,
+    is_noshow
+  ) VALUES (
+    _fecha,
+    _hora,
+    _res_number,
+    _res_name,
+    _room,
+    _is_bonus,
+    _bonus_qty,
+    _meal_plan,
+    _pax_number,
+    _cost,
+    _observations,
+    _is_noshow
+  )
+  RETURNING * INTO inserted_reservation;
+
+  RETURN inserted_reservation;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT insert_reservation(
+  '2023-05-27',
+  '19:00',
+  1,
+  'John Doe',
+  '024',
+  FALSE,
+  0,
+  NULL,
+  2,
+  50.00,
+  'No special instructions',
+  FALSE
+) AS new_reservation;
+*/
