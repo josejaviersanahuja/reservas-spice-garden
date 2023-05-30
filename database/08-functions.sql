@@ -212,7 +212,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_monthly_statistics(fecha_i DATE, fecha_f DATE)
+CREATE OR REPLACE FUNCTION get_statistics(fecha_i DATE, fecha_f DATE)
 RETURNS TABLE (
   fecha DATE,
   theme_name VARCHAR(255),
