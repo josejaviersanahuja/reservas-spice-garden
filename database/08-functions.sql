@@ -387,3 +387,28 @@ BEGIN
     AND reservations.is_deleted = FALSE;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION delete_reservation(reservation_id INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+    rows_affected INTEGER;
+BEGIN
+    UPDATE reservations
+    SET is_deleted = TRUE
+    WHERE id = reservation_id
+    RETURNING id INTO rows_affected;
+
+    IF rows_affected IS NULL THEN
+        -- No se borró ningún registro
+        RETURN 0;
+    ELSE
+        -- Se borró exitosamente
+        RETURN 1;
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Hubo un error durante la actualización
+        RETURN -1;
+END;
+$$ LANGUAGE plpgsql;
