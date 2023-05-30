@@ -173,6 +173,8 @@ BEGIN
   WHERE
     agenda.fecha >= fecha_i AND agenda.fecha < fecha_f
   GROUP BY
+    agenda.fecha
+  ORDER BY
     agenda.fecha;
 END;
 $$ LANGUAGE plpgsql;
