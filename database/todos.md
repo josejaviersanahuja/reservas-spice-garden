@@ -94,12 +94,16 @@ $$ LANGUAGE plpgsql;
 
 Eliminar una reserva
 Método: DELETE
-Ruta: /reservations/{res_number}
+Ruta: /reservations/{id}
 Descripción: Elimina una reserva existente.
-Parámetros de entrada: Número de reserva (res_number).
+Parámetros de entrada: Número de reserva (id).
 Respuesta: Código de estado y mensaje de confirmación.
-Obtener disponibilidad de asientos
+statusCode: 202, "deleted"
+```sql
+SELECT delete_reservation(226); -- 1,0,-1
+```
 
+Obtener disponibilidad de asientos
 Método: GET
 Ruta: /availability
 Descripción: Obtiene la disponibilidad de asientos para una fecha y hora específicas.
