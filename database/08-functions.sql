@@ -352,10 +352,38 @@ SELECT insert_reservation(
   '024',
   FALSE,
   0,
-  NULL,
+  'HB',
   2,
   50.00,
   'No special instructions',
   FALSE
 ) AS new_reservation;
 */
+
+CREATE OR REPLACE FUNCTION get_payable_reservations(reservation_number INTEGER)
+RETURNS TABLE (
+  id INTEGER,
+  fecha DATE,
+  hora TIME_OPTIONS_ENUM,
+  res_number INTEGER,
+  res_name VARCHAR(100),
+  room ROOM_OPTIONS_ENUM,
+  is_bonus BOOLEAN,
+  bonus_qty INTEGER,
+  meal_plan MEAL_PLAN_ENUM,
+  pax_number INTEGER,
+  cost NUMERIC(10,2),
+  observations TEXT,
+  is_noshow BOOLEAN,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  is_deleted BOOLEAN
+) AS $$
+BEGIN
+  RETURN QUERY SELECT *
+    FROM reservations 
+    WHERE reservations.res_number = reservation_number 
+    AND reservations.is_bonus = FALSE 
+    AND reservations.is_deleted = FALSE;
+END;
+$$ LANGUAGE plpgsql;
