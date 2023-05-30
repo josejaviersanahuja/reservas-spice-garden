@@ -1,30 +1,6 @@
 @TODO functions views and more
 
-También parece estar mal planteada, parametros de entrada fecha_i, fecha_f
-```sql
-CREATE OR REPLACE FUNCTION get_percentage_per_theme()
-RETURNS TABLE (theme_name VARCHAR(255), percentage FLOAT) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        r.theme_name,
-        (COUNT(*) * 100.0) / SUM(COUNT(*)) OVER() AS percentage
-    FROM
-        standard_reservations s
-    JOIN
-        agenda a ON s.fecha = a.fecha
-    JOIN
-        restaurant_themes r ON a.restaurant_theme_id = r.id
-    WHERE
-        s.is_deleted = FALSE AND a.is_deleted = FALSE AND a.is_noshow = FALSE
-    GROUP BY
-        r.theme_name;
 
-END;
-$$ LANGUAGE plpgsql;
-```
-
-CREATE INDEX idx_reservations_res_number ON reservations (res_number);
 
 INSERT
 Método: POST
