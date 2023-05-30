@@ -265,12 +265,29 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_percentage_per_theme(fecha_i DATE, fecha_f DATE)
-RETURNS TABLE (theme_name VARCHAR(255), percentage NUMERIC(10,2)) AS $$
+RETURNS TABLE (
+	theme_name VARCHAR(255),
+	num_res_theme BIGINT,
+	num_res_total NUMERIC,
+	pax_res_theme BIGINT,
+	pax_res_total NUMERIC,
+	bonus_res_theme BIGINT,
+	bonus_res_total NUMERIC,
+	cash_theme NUMERIC(10,2),
+	cash_total NUMERIC(10,2)
+) AS $$
 BEGIN
     RETURN QUERY
     SELECT
         r.theme_name,
-        (COUNT(*) * 100.0) / SUM(COUNT(*)) OVER() AS percentage
+        COUNT(*) AS num_res_theme,
+		    SUM(COUNT(*)) OVER() AS num_res_total,
+        SUM(s.pax_number) AS pax_res_theme,
+		    SUM(SUM(s.pax_number)) OVER() AS pax_res_total,
+        COUNT(*) FILTER (WHERE s.is_bonus = TRUE) AS bonus_res_theme,
+		    SUM(COUNT(*) FILTER (WHERE s.is_bonus = TRUE)) OVER() AS bonus_res_total,
+        SUM(s.cost) AS cash_theme,
+		    SUM(SUM(s.cost)) OVER() AS cash_total
     FROM
         standard_reservations s
     JOIN
