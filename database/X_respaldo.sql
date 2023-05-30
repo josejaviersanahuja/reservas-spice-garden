@@ -76,6 +76,7 @@ CREATE TYPE ROOM_OPTIONS_ENUM AS ENUM (
 );
 
 CREATE TABLE reservations (
+  id SERIAL PRIMARY KEY,
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
   hora TIME_OPTIONS_ENUM NOT NULL,
   res_number INTEGER NOT NULL DEFAULT 0, -- reservation number, if there isn't one, use 0
@@ -90,8 +91,7 @@ CREATE TABLE reservations (
   is_noshow BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  is_deleted BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (fecha, hora, res_number, res_name, room)
+  is_deleted BOOLEAN DEFAULT FALSE
 );
 
 ALTER TABLE agenda
@@ -122,6 +122,7 @@ ON UPDATE CASCADE;
 
 CREATE OR REPLACE FUNCTION get_bonus_reservations(reservation_number INTEGER)
 RETURNS TABLE (
+  id INTEGER,
   fecha DATE,
   hora TIME_OPTIONS_ENUM,
   res_number INTEGER,
@@ -186,7 +187,7 @@ BEGIN
     AND reservations.hora = in_hora
     AND reservations.is_deleted = FALSE;
   IF max_seats IS NULL THEN
-    RETURN -1; -- fecha no encontrada en agenda
+    RETURN -100; -- fecha no encontrada en agenda
   ELSIF reserved_seats IS NULL THEN
     RETURN max_seats; -- no hay reservas para esa fecha y hora
   ELSE
@@ -194,3 +195,208 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+/* 
+SELECT * FROM get_bonus_reservations(1);
+
+SELECT get_available_seats('2023-05-23', '19:00');
+-[ RECORD 1 ]-------+----
+get_available_seats | -14
+*/
+
+CREATE VIEW no_show_reservations AS
+SELECT *
+FROM reservations
+WHERE is_noshow = TRUE AND is_deleted = FALSE;
+
+CREATE VIEW cancelled_reservations AS
+SELECT *
+FROM reservations
+WHERE is_deleted = TRUE;
+
+CREATE VIEW standard_reservations AS
+SELECT *
+FROM reservations
+WHERE is_deleted = FALSE AND is_noshow = FALSE;
+
+CREATE OR REPLACE FUNCTION get_assistants(fecha_in DATE)
+RETURNS TABLE (num_standard_res INT, num_no_show_res INT, num_pax INT, no_show_pax INT) AS $$
+DECLARE
+    total_standard_res INT;
+    total_no_show_res INT;
+    total_pax INT;
+    total_no_show_pax INT;
+BEGIN
+    SELECT COUNT(*) INTO total_standard_res
+    FROM standard_reservations
+    WHERE fecha = fecha_in;
+
+    SELECT COUNT(*) INTO total_no_show_res
+    FROM no_show_reservations
+    WHERE fecha = fecha_in;
+
+    SELECT SUM(pax_number) INTO total_pax
+    FROM standard_reservations
+    WHERE fecha = fecha_in;
+
+    SELECT SUM(pax_number) INTO total_no_show_pax
+    FROM no_show_reservations
+    WHERE fecha = fecha_in;
+
+    RETURN QUERY SELECT total_standard_res, total_no_show_res, total_pax, total_no_show_pax;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT * FROM get_assistants('2023-05-27');
+*/
+
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at := NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_reservations_between_dates(fecha_i DATE, fecha_f DATE)
+RETURNS TABLE (
+  fecha DATE,
+  standard_reservations JSON,
+  no_show_reservations JSON,
+  cancelled_reservations JSON,
+  theme_name TEXT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    agenda.fecha AS fecha,
+    JSON_AGG(standard_reservations.*) AS standard_reservations,
+    JSON_AGG(no_show_reservations.*) AS no_show_reservations,
+    JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
+    MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
+  FROM
+    agenda
+  LEFT JOIN
+    standard_reservations ON agenda.fecha = standard_reservations.fecha
+  LEFT JOIN
+    no_show_reservations ON agenda.fecha = no_show_reservations.fecha
+  LEFT JOIN
+    cancelled_reservations ON agenda.fecha = cancelled_reservations.fecha
+  LEFT JOIN
+    restaurant_themes ON agenda.restaurant_theme_id = restaurant_themes.id
+  WHERE
+    agenda.fecha >= fecha_i AND agenda.fecha < fecha_f
+  GROUP BY
+    agenda.fecha;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_reservations_between_dates(fecha_i DATE)
+RETURNS TABLE (
+  fecha DATE,
+  standard_reservations JSON,
+  no_show_reservations JSON,
+  cancelled_reservations JSON,
+  theme_name TEXT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    agenda.fecha AS fecha,
+    JSON_AGG(standard_reservations.*) AS standard_reservations,
+    JSON_AGG(no_show_reservations.*) AS no_show_reservations,
+    JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
+    MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
+  FROM
+    agenda
+  LEFT JOIN
+    standard_reservations ON agenda.fecha = standard_reservations.fecha
+  LEFT JOIN
+    no_show_reservations ON agenda.fecha = no_show_reservations.fecha
+  LEFT JOIN
+    cancelled_reservations ON agenda.fecha = cancelled_reservations.fecha
+  LEFT JOIN
+    restaurant_themes ON agenda.restaurant_theme_id = restaurant_themes.id
+  WHERE
+    agenda.fecha = fecha_i
+  GROUP BY
+    agenda.fecha;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_monthly_statistics(fecha_i DATE, fecha_f DATE)
+RETURNS TABLE (
+  fecha DATE,
+  theme_name VARCHAR(255),
+  reserved BIGINT,
+  assistants BIGINT,
+  total_cash NUMERIC(10, 2),
+  total_bonus BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        a.fecha,
+        r.theme_name,
+        COALESCE(s.reserved, 0) AS reserved,
+        COALESCE(s.assistants, 0) AS assistants,
+        COALESCE(s.total_cash, 0.0) AS total_cash,
+        COALESCE(n.total_bonus, 0) AS total_bonus
+    FROM
+        agenda a
+    LEFT JOIN
+        restaurant_themes r ON a.restaurant_theme_id = r.id
+    LEFT JOIN LATERAL (
+        SELECT
+            COUNT(*) AS reserved,
+            SUM(cost) AS total_cash,
+            COUNT(*) FILTER (WHERE is_bonus = TRUE) AS total_bonus,
+            SUM(pax_number) AS assistants
+        FROM
+            standard_reservations
+        WHERE
+            standard_reservations.fecha = a.fecha
+            AND standard_reservations.fecha >= fecha_i
+            AND standard_reservations.fecha < fecha_f
+    ) s ON true
+    LEFT JOIN LATERAL (
+        SELECT
+            COUNT(*) AS total_bonus
+        FROM
+            no_show_reservations
+        WHERE
+            no_show_reservations.fecha = a.fecha 
+            AND no_show_reservations.fecha >= fecha_i
+            AND no_show_reservations.fecha < fecha_f
+            AND is_bonus = TRUE
+    ) n ON true
+    WHERE a.fecha >= fecha_i AND a.fecha < fecha_f
+    ORDER BY a.fecha;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_updated_at_agenda
+BEFORE UPDATE ON agenda
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE OR REPLACE TRIGGER trigger_updated_at_reservations
+BEFORE UPDATE ON reservations
+FOR EACH ROW
+EXECUTE PROCEDURE update_updated_at();
+
+CREATE OR REPLACE TRIGGER trigger_updated_at_users
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE OR REPLACE TRIGGER trigger_updated_at_restaurant_themes
+BEFORE UPDATE ON restaurant_themes
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+/*
+UPDATE reservations SET is_noshow = TRUE WHERE fecha = '2023-05-27' AND room = 'P13';
+*/

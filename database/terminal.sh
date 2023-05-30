@@ -14,4 +14,6 @@ cat 07-constraints.sql >> X_respaldo.sql &&
 cat 07-constraints.sql >> Y_respaldo_test.sql &&
 cat 08-functions.sql >> X_respaldo.sql &&
 cat 08-functions.sql >> Y_respaldo_test.sql &&
+cat 09-triggers.sql >> X_respaldo.sql &&
+cat 09-triggers.sql >> Y_respaldo_test.sql &&
 nano Y_respaldo_test.sql
