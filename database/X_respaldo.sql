@@ -788,6 +788,35 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION create_restaurant_theme(
+  _theme_name VARCHAR(255),
+  _description TEXT,
+  _image_url VARCHAR(255) DEFAULT NULL
+)
+RETURNS JSON AS $$
+DECLARE
+  result JSON;
+BEGIN
+  INSERT INTO restaurant_themes (theme_name, description, image_url)
+  VALUES (_theme_name, _description, _image_url)
+  RETURNING id, theme_name, description, image_url, created_at, updated_at, is_deleted
+  INTO result;
+  
+  RETURN json_build_object(
+    'statusCode', 201,
+    'message', 'Restaurant theme created successfully',
+    'data', result
+  );
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN json_build_object(
+      'statusCode', 500,
+      'message', 'Error creating restaurant theme',
+      'sqlError', SQLERRM
+    );
+END;
+$$ LANGUAGE plpgsql;
+
 -- FUNCTIONS TRIGGERS
 
 CREATE OR REPLACE FUNCTION update_updated_at()

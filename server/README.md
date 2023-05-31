@@ -71,6 +71,7 @@ SELECT * FROM get_reservations_between_dates(fecha_i)
 - DB Function
 ```sql
 SELECT * FROM update_reservation(15, NULL, NULL, NULL, NULL, NULL, TRUE);
+-- id, fecha, hora, res_number, res_name, room, is_bonus, bonus_qty, meal_plan, pax_number, cost, observations, is_noshow
 ```
 
 ## Eliminar una reserva
@@ -152,7 +153,7 @@ SELECT create_agenda('2023-05-30', 3);
 
 ## Actualizar una agenda existente
 
-- Método: PUT o PATCH
+- Método: PATCH
 - Ruta: `/agendas/{fecha}`
 - Descripción: Actualiza los detalles de una agenda existente.
 - Cuerpo de la solicitud: JSON con los nuevos valores de la agenda.
@@ -160,7 +161,10 @@ SELECT create_agenda('2023-05-30', 3);
 - StatusCode: 202
 - DB Function:
 ```sql
-SELECT update_agenda('2023-05-30', NULL, NULL, NULL, 5); -- esto va a modificar el valor de capacidad de t1930
+SELECT update_agenda('2023-05-30', NULL, NULL, NULL, 5);
+-- esto va a modificar el valor de capacidad de t1930
+-- a partir del segundo campo todos son opcionales.
+-- fecha, restaurant_theme_id, t1900, ... ,t2145
 ```
 - req.body:
 ```json
@@ -194,4 +198,41 @@ SELECT delete_agenda('2023-05-27');
 - DB Function:
 ```sql
 SELECT * FROM restaurant_themes_view;
+```
+## Crear un nuevo tema de restaurante
+
+- Método: POST
+- Ruta: `/restaurant_themes`
+- Descripción: Retorna el nuevo tema creado
+- Respuesta exitosa (código 201): JSON con el nuevo tema.
+- StatusCode: 201
+- DB Function:
+```sql
+SELECT create_restaurant_theme('colombiano', 'bandeja paisa');
+-- tercer campo opcional image url
+```
+
+## Editar un tema de restaurante
+
+- Método: PATCH
+- Ruta: `/restaurant_themes`
+- Descripción: Retorna el nuevo tema creado
+- Respuesta exitosa (código 202): JSON con el nuevo tema.
+- StatusCode: 202
+- DB Function:
+```sql
+SELECT update_restaurant_theme(5, 'borrar y no usar');
+-- 2do, 3er y 4to campos opcionales, pasar NULL si no existen
+```
+
+## Eliminar un tema de restaurante
+
+- Método: DELETE
+- Ruta: `/restaurant_themes`
+- Descripción: Retorna el nuevo tema creado
+- Respuesta exitosa (código 202): JSON con el nuevo tema.
+- StatusCode: 202
+- DB Function:
+```sql
+SELECT delete_restaurant_theme(5);
 ```
