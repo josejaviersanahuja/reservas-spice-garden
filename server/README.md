@@ -126,6 +126,19 @@ SELECT get_statistics(fecha_i,fecha_f);
 SELECT public.get_percentage_per_theme(<fecha_i date>, <fecha_f date>);
 ```
 
+## Obtener datos de asistencias de reservas en una fecha especifica
+
+- Método: GET
+- Ruta: `/statistics/assistants/{fecha}` @TODO revisar
+- Descripción: Obtiene datos de los pax y asistentes
+- Parámetros de entrada: fecha.
+- Respuesta: Código de estado y 
+- StatusCode: 200
+- DB Function:
+```sql
+SELECT get_assistants('2023-05-27');
+```
+
 ## Obtener una agenda específica
 
 - Método: GET
