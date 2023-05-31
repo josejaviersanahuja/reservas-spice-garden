@@ -89,21 +89,6 @@ SELECT get_available_seats('2023-05-23', '19:00');
 get_available_seats | -14
 */
 
-CREATE VIEW no_show_reservations AS
-SELECT *
-FROM reservations
-WHERE is_noshow = TRUE AND is_deleted = FALSE;
-
-CREATE VIEW cancelled_reservations AS
-SELECT *
-FROM reservations
-WHERE is_deleted = TRUE;
-
-CREATE VIEW standard_reservations AS
-SELECT *
-FROM reservations
-WHERE is_deleted = FALSE AND is_noshow = FALSE;
-
 CREATE OR REPLACE FUNCTION get_assistants(fecha_in DATE)
 RETURNS TABLE (num_standard_res INT, num_no_show_res INT, num_pax INT, no_show_pax INT) AS $$
 DECLARE
@@ -135,14 +120,6 @@ $$ LANGUAGE plpgsql;
 /*
 SELECT * FROM get_assistants('2023-05-27');
 */
-
-CREATE OR REPLACE FUNCTION update_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at := NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_reservations_between_dates(fecha_i DATE, fecha_f DATE)
 RETURNS TABLE (
@@ -377,6 +354,53 @@ SELECT insert_reservation(
 ) AS new_reservation;
 */
 
+CREATE OR REPLACE FUNCTION update_reservation(
+  _id INTEGER,
+  _fecha DATE DEFAULT NULL,
+  _hora TIME_OPTIONS_ENUM DEFAULT NULL,
+  _res_number INTEGER DEFAULT NULL,
+  _res_name VARCHAR(100) DEFAULT NULL,
+  _room ROOM_OPTIONS_ENUM DEFAULT NULL,
+  _is_bonus BOOLEAN DEFAULT NULL,
+  _bonus_qty INTEGER DEFAULT NULL,
+  _meal_plan MEAL_PLAN_ENUM DEFAULT NULL,
+  _pax_number INTEGER DEFAULT NULL,
+  _cost NUMERIC(10,2) DEFAULT NULL,
+  _observations TEXT DEFAULT NULL,
+  _is_noshow BOOLEAN DEFAULT NULL
+) RETURNS reservations AS $$
+DECLARE
+  updated_reservation reservations;
+BEGIN
+  UPDATE reservations
+  SET
+    fecha = COALESCE(_fecha, fecha),
+    hora = COALESCE(_hora, hora),
+    res_number = COALESCE(_res_number, res_number),
+    res_name = COALESCE(_res_name, res_name),
+    room = COALESCE(_room, room),
+    is_bonus = COALESCE(_is_bonus, is_bonus),
+    bonus_qty = COALESCE(_bonus_qty, bonus_qty),
+    meal_plan = COALESCE(_meal_plan, meal_plan),
+    pax_number = COALESCE(_pax_number, pax_number),
+    cost = COALESCE(_cost, cost),
+    observations = COALESCE(_observations, observations),
+    is_noshow = COALESCE(_is_noshow, is_noshow)
+  WHERE id = _id
+  RETURNING * INTO updated_reservation;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'El update falló en la base de datos.';
+  END IF;
+
+  RETURN updated_reservation;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT * FROM update_reservation(15, NULL, NULL, NULL, NULL, NULL, TRUE);
+*/
+
 CREATE OR REPLACE FUNCTION get_payable_reservations(reservation_number INTEGER)
 RETURNS TABLE (
   id INTEGER,
@@ -590,3 +614,24 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION delete_agenda(_fecha DATE)
+RETURNS JSON AS $$
+DECLARE
+  res_count INTEGER;
+BEGIN
+  IF _fecha < CURRENT_DATE THEN
+    RETURN '{"statusCode": 400, "message": "No se puede borrar una agenda pasada"}';
+  END IF;
+  UPDATE agenda SET is_deleted = TRUE WHERE fecha = _fecha;
+  GET DIAGNOSTICS res_count = ROW_COUNT;
+  IF res_count = 0 THEN
+    RETURN '{"statusCode": 404, "message": "No se encontró agenda con la fecha especificada"}';
+  END IF;
+  UPDATE reservations SET is_deleted = TRUE WHERE fecha = _fecha;
+  GET DIAGNOSTICS res_count = ROW_COUNT;
+  RETURN '{"statusCode": 202, "message": "Agenda con ' || _fecha || ' borrada y ' || res_count || ' reservas canceladas"}';
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN '{"statusCode": 500, "message": "Error al borrar agenda con ' || _fecha || '", "sqlError": "' || SQLERRM || '"}';
+END;
+$$ LANGUAGE plpgsql;

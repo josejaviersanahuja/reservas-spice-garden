@@ -60,50 +60,6 @@ Parámetros de entrada: id de reserva (id).
 Respuesta: Código de estado y nuevos datos.
 successCode: 202
 
-```sql
-CREATE OR REPLACE FUNCTION update_reservation(
-  _id INTEGER,
-  _fecha DATE,
-  _hora TIME_OPTIONS_ENUM,
-  _res_number INTEGER,
-  _res_name VARCHAR(100),
-  _room ROOM_OPTIONS_ENUM,
-  _is_bonus BOOLEAN,
-  _bonus_qty INTEGER,
-  _meal_plan MEAL_PLAN_ENUM,
-  _pax_number INTEGER,
-  _cost NUMERIC(10,2),
-  _observations TEXT,
-  _is_noshow BOOLEAN
-) RETURNS reservations AS $$
-DECLARE
-  updated_reservation reservations;
-BEGIN
-  UPDATE reservations
-  SET
-    fecha = _fecha,
-    hora = _hora,
-    res_number = _res_number,
-    res_name = _res_name,
-    room = _room,
-    is_bonus = _is_bonus,
-    bonus_qty = _bonus_qty,
-    meal_plan = _meal_plan,
-    pax_number = _pax_number,
-    cost = _cost,
-    observations = _observations,
-    is_noshow = _is_noshow
-  WHERE id = _id
-  RETURNING * INTO updated_reservation;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'El update falló en la base de datos.';
-  END IF;
-
-  RETURN updated_reservation;
-END;
-$$ LANGUAGE plpgsql;
-```
 
 Eliminar una reserva
 Método: DELETE
@@ -222,26 +178,17 @@ Ruta: /agendas/{fecha}
 Descripción: Elimina una agenda existente.
 Respuesta exitosa (código 204)
 
+```sql
+SELECT delete_agenda('2023-05-27');
+```
+
 Endpoints para la entidad "restaurant_themes":
 Obtener todos los temas de restaurantes:
 Método: GET
 Ruta: /restaurant_themes
 Descripción: Retorna todos los temas de restaurantes disponibles.
 Respuesta exitosa (código 200):
-json
-Copy code
-{
-  "restaurant_themes": [
-    {
-      "id": 1,
-      "theme_name": "Restaurante Mexicano",
-      "description": "Restaurante de comida mexicana",
-      "image_url": ""
-    },
-    ...
-  ]
-}
 
-Obtener todos los temas posibles
-Método: GET
-Ruta: /themes
+```sql
+SELECT * FROM restaurant_themes_view;
+```

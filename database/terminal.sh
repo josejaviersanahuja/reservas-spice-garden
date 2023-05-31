@@ -12,8 +12,10 @@ cat 05-seed-agenda.sql >> Y_respaldo_test.sql &&
 cat 06-seed-reservations.sql >> Y_respaldo_test.sql &&
 cat 07-constraints.sql >> X_respaldo.sql &&
 cat 07-constraints.sql >> Y_respaldo_test.sql &&
-cat 08-functions.sql >> X_respaldo.sql &&
-cat 08-functions.sql >> Y_respaldo_test.sql &&
-cat 09-triggers.sql >> X_respaldo.sql &&
-cat 09-triggers.sql >> Y_respaldo_test.sql &&
+cat 08-views.sql >> X_respaldo.sql &&
+cat 08-views.sql >> Y_respaldo_test.sql &&
+cat 09-functions.sql >> X_respaldo.sql &&
+cat 09-functions.sql >> Y_respaldo_test.sql &&
+cat 10-triggers.sql >> X_respaldo.sql &&
+cat 10-triggers.sql >> Y_respaldo_test.sql &&
 nano Y_respaldo_test.sql

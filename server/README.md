@@ -10,6 +10,23 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Parámetros de entrada: Datos de la reserva (fecha, hora, res_name, room, is_bonus, bonus_qty, meal_plan, pax_number, cost, observations).
 - Respuesta: Código de estado y detalles de la reserva creada.
 - SuccessCode: 201
+- DB Function: 
+```sql
+SELECT * FROM insert_reservation(
+  '2023-05-27',
+  '19:00',
+  1,
+  'John Doe',
+  '024',
+  FALSE,
+  0,
+  NULL,
+  2,
+  50.00,
+  'No special instructions',
+  FALSE
+) AS new_reservation;
+```
 
 ## Obtener las reservas del spice garden hechas por el numero de reserva del hotel
 
@@ -19,6 +36,13 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Parámetros de entrada: Número de reserva (res_number).
 - Respuesta: Array de reservas hechas, potencialmente por el mismo cliente.
 - SuccessCode: 200
+- DB Function: 
+```json
+{
+    "with_bonus": "SELECT * FROM get_bonus_reservations(res_number)",
+    "payable": "SELECT * FROM get_payable_reservations(res_number)"
+}
+```
 
 ## Obtener las reservas del spice garden por fechas
 
@@ -29,6 +53,12 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Parámetros de entrada: `fecha_i` (DATE), `fecha_f` (DATE | undefined).
 - Respuesta: Array de reservas hechas, potencialmente por el mismo cliente.
 - SuccessCode: 200
+- DB Function:
+```sql
+SELECT * FROM get_reservations_between_dates(fecha_i, fecha_f)
+SELECT * FROM get_reservations_between_dates(fecha_i)
+-- puede recibir un solo parámetro para traer las fechas de un solo día.
+```
 
 ## Editar una reserva
 
@@ -38,6 +68,10 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Parámetros de entrada: ID de reserva (id).
 - Respuesta: Código de estado y nuevos datos.
 - SuccessCode: 202
+- DB Function
+```sql
+SELECT * FROM update_reservation(15, NULL, NULL, NULL, NULL, NULL, TRUE);
+```
 
 ## Eliminar una reserva
 
@@ -47,6 +81,10 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Parámetros de entrada: Número de reserva (id).
 - Respuesta: Código de estado y mensaje de confirmación.
 - StatusCode: 202, "deleted"
+- DB Function:
+```sql
+SELECT delete_reservation(226); -- 1,0,-1
+```
 
 ## Obtener disponibilidad de asientos
 
@@ -55,6 +93,11 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Descripción: Obtiene la disponibilidad de asientos para una fecha y hora específicas.
 - Parámetros de entrada: Fecha (fecha) y hora (hora).
 - Respuesta: Código de estado y número de asientos disponibles.
+- StatusCode: 200
+- DB Function:
+```sql
+SELECT get_available_seats('2023-05-27','19:30');
+```
 
 ## Obtener estadísticas mensuales
 
@@ -63,6 +106,11 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Descripción: Obtiene las estadísticas mensuales de reservas del restaurante.
 - Parámetros de entrada: Ninguno.
 - Respuesta: Código de estado y detalles de las estadísticas mensuales.
+- StatusCode: 200
+- DB Function:
+```sql
+SELECT get_statistics(fecha_i,fecha_f);
+```
 
 ## Obtener porcentaje de reservas por tema
 
@@ -71,6 +119,11 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Descripción: Obtiene el porcentaje de reservas por tema de restaurante.
 - Parámetros de entrada: Ninguno.
 - Respuesta: Código de estado y detalles del porcentaje de reservas por tema.
+- StatusCode: 200
+- DB Function:
+```sql
+SELECT public.get_percentage_per_theme(<fecha_i date>, <fecha_f date>);
+```
 
 ## Obtener una agenda específica
 
@@ -78,6 +131,11 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Ruta: `/agendas/{fecha}`
 - Descripción: Retorna la agenda de esa fecha.
 - Respuesta exitosa (código 200).
+- StatusCode: 200
+- DB Function:
+```sql
+SELECT get_agenda_info('2023-05-27');
+```
 
 ## Crear una nueva agenda
 
@@ -86,6 +144,11 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Descripción: Crea una nueva agenda.
 - Cuerpo de la solicitud: JSON con la fecha y el ID del tema del restaurante.
 - Respuesta exitosa (código 201).
+- StatusCode: 201
+- DB Function:
+```sql
+SELECT create_agenda('2023-05-30', 3);
+```
 
 ## Actualizar una agenda existente
 
@@ -93,25 +156,42 @@ A continuación se detallan los endpoints disponibles en el backend junto con su
 - Ruta: `/agendas/{fecha}`
 - Descripción: Actualiza los detalles de una agenda existente.
 - Cuerpo de la solicitud: JSON con los nuevos valores de la agenda.
-- Respuesta exitosa (código 200).
+- Respuesta exitosa (código 202).
+- StatusCode: 202
+- DB Function:
+```sql
+SELECT update_agenda('2023-05-30', NULL, NULL, NULL, 5); -- esto va a modificar el valor de capacidad de t1930
+```
+- req.body:
+```json
+{
+  "restaurant_theme_id": 3,
+  "t1900": 12,
+  "t1915": 10,
+  ...
+}
+``` 
 
 ## Eliminar una agenda
 
 - Método: DELETE
 - Ruta: `/agendas/{fecha}`
 - Descripción: Elimina una agenda existente.
-- Respuesta exitosa (código 204).
+- Respuesta exitosa (código 202).
+- StatusCode: 202
+- DB Function:
+```sql
+SELECT delete_agenda('2023-05-27');
+```
 
-## Endpoints para la entidad "restaurant_themes"
-
-### Obtener todos los temas de restaurantes
+## Obtener todos los temas de restaurantes
 
 - Método: GET
 - Ruta: `/restaurant_themes`
 - Descripción: Retorna todos los temas de restaurantes disponibles.
 - Respuesta exitosa (código 200): JSON con la lista de temas de restaurantes.
-
-### Obtener todos los temas posibles
-
-- Método: GET
-- Ruta: `/themes`
+- StatusCode: 200
+- DB Function:
+```sql
+SELECT * FROM restaurant_themes_view;
+```
