@@ -20,7 +20,7 @@ CREATE TABLE restaurant_themes (
   id SERIAL PRIMARY KEY,
   theme_name VARCHAR(255) NOT NULL,
   description TEXT,
-  image_url VARCHAR(255) DEFAULT '',
+  image_url VARCHAR(255),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   is_deleted BOOLEAN DEFAULT FALSE
@@ -438,78 +438,51 @@ SELECT *
 FROM restaurant_themes
 WHERE is_deleted = TRUE;
 
--- La función se llama "get_bonus_reservations" y recibe un parámetro de entrada "reservation_number" de tipo INTEGER.
--- La función devuelve una tabla con los mismos campos que la tabla "reservations".
--- Dentro de la función, se utiliza la cláusula "RETURN QUERY" para devolver los registros que cumplen con las condiciones especificadas en la cláusula "WHERE".
--- La condición "res_number = reservation_number" filtra los registros por el número de reserva que se ha pasado como parámetro.
--- La condición "is_bonus = TRUE" filtra los registros por aquellos que tienen el campo "is_bonus" igual a true.
-
-CREATE OR REPLACE FUNCTION get_bonus_reservations(reservation_number INTEGER)
-RETURNS TABLE (
-  id INTEGER,
-  fecha DATE,
-  hora TIME_OPTIONS_ENUM,
-  res_number INTEGER,
-  res_name VARCHAR(100),
-  room ROOM_OPTIONS_ENUM,
-  is_bonus BOOLEAN,
-  bonus_qty INTEGER,
-  meal_plan MEAL_PLAN_ENUM,
-  pax_number INTEGER,
-  cost NUMERIC(10,2),
-  observations TEXT,
-  is_noshow BOOLEAN,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  is_deleted BOOLEAN
-) AS $$
-BEGIN
-  RETURN QUERY SELECT *
-    FROM reservations 
-    WHERE reservations.res_number = reservation_number 
-    AND reservations.is_bonus = TRUE 
-    AND reservations.is_deleted = FALSE;
-END;
-$$ LANGUAGE plpgsql;
-
--- the way to use functions that returns tables is:
--- SELECT * FROM get_bonus_reservations(1);
-
 CREATE OR REPLACE FUNCTION get_available_seats(in_fecha DATE, in_hora TIME_OPTIONS_ENUM) 
 RETURNS INTEGER AS $$
 DECLARE
   max_seats INTEGER;
   reserved_seats INTEGER;
 BEGIN
-  IF in_hora = '19:00' THEN
-    SELECT agenda.t1900 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '19:15' THEN
-    SELECT agenda.t1915 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '19:30' THEN
-    SELECT agenda.t1930 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '19:45' THEN
-    SELECT agenda.t1945 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '20:00' THEN
-    SELECT agenda.t2000 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '20:15' THEN
-    SELECT agenda.t2015 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '20:30' THEN
-    SELECT agenda.t2030 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '20:45' THEN
-    SELECT agenda.t2045 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '21:00' THEN
-    SELECT agenda.t2100 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '21:15' THEN
-    SELECT agenda.t2115 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '21:30' THEN
-    SELECT agenda.t2130 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  ELSIF in_hora = '21:45' THEN
-    SELECT agenda.t2145 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
-  END IF;
-  SELECT SUM(reservations.pax_number) INTO reserved_seats FROM reservations 
-    WHERE reservations.fecha = in_fecha
-    AND reservations.hora = in_hora
-    AND reservations.is_deleted = FALSE;
+  BEGIN
+    IF in_hora = '19:00' THEN
+      SELECT agenda.t1900 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '19:15' THEN
+      SELECT agenda.t1915 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '19:30' THEN
+      SELECT agenda.t1930 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '19:45' THEN
+      SELECT agenda.t1945 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '20:00' THEN
+      SELECT agenda.t2000 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '20:15' THEN
+      SELECT agenda.t2015 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '20:30' THEN
+      SELECT agenda.t2030 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '20:45' THEN
+      SELECT agenda.t2045 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '21:00' THEN
+      SELECT agenda.t2100 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '21:15' THEN
+      SELECT agenda.t2115 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '21:30' THEN
+      SELECT agenda.t2130 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    ELSIF in_hora = '21:45' THEN
+      SELECT agenda.t2145 INTO max_seats FROM agenda WHERE agenda.fecha = in_fecha;
+    END IF;
+  EXCEPTION
+    WHEN OTHERS THEN
+    RETURN -101; -- Excepción general agenda, se devuelve -101
+  END;
+  BEGIN
+    SELECT SUM(reservations.pax_number) INTO reserved_seats FROM reservations 
+      WHERE reservations.fecha = in_fecha
+      AND reservations.hora = in_hora
+      AND reservations.is_deleted = FALSE;
+  EXCEPTION
+    WHEN OTHERS THEN
+    RETURN -102; -- Excepción general en reservations, se devuelve -102
+  END;
   IF max_seats IS NULL THEN
     RETURN -100; -- fecha no encontrada en agenda
   ELSIF reserved_seats IS NULL THEN
@@ -519,114 +492,65 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql;
-
-/* 
-SELECT * FROM get_bonus_reservations(1);
-
+/*
 SELECT get_available_seats('2023-05-23', '19:00');
 -[ RECORD 1 ]-------+----
 get_available_seats | -14
 */
 
 CREATE OR REPLACE FUNCTION get_assistants(fecha_in DATE)
-RETURNS TABLE (num_standard_res INT, num_no_show_res INT, num_pax INT, no_show_pax INT) AS $$
-DECLARE
+RETURNS JSON AS $$
+DECLARE 
     total_standard_res INT;
     total_no_show_res INT;
     total_pax INT;
     total_no_show_pax INT;
-BEGIN
-    SELECT COUNT(*) INTO total_standard_res
-    FROM standard_reservations
-    WHERE fecha = fecha_in;
+    result JSON;
+BEGIN 
+    BEGIN
+        SELECT COUNT(*) INTO total_standard_res
+        FROM standard_reservations
+        WHERE fecha = fecha_in;
 
-    SELECT COUNT(*) INTO total_no_show_res
-    FROM no_show_reservations
-    WHERE fecha = fecha_in;
+        SELECT COUNT(*) INTO total_no_show_res
+        FROM no_show_reservations
+        WHERE fecha = fecha_in;
 
-    SELECT SUM(pax_number) INTO total_pax
-    FROM standard_reservations
-    WHERE fecha = fecha_in;
+        SELECT SUM(pax_number) INTO total_pax
+        FROM standard_reservations
+        WHERE fecha = fecha_in;
 
-    SELECT SUM(pax_number) INTO total_no_show_pax
-    FROM no_show_reservations
-    WHERE fecha = fecha_in;
+        SELECT SUM(pax_number) INTO total_no_show_pax
+        FROM no_show_reservations
+        WHERE fecha = fecha_in;
 
-    RETURN QUERY SELECT total_standard_res, total_no_show_res, total_pax, total_no_show_pax;
+        result := json_build_object(
+            'statusCode', 200,
+            'data', json_build_object(
+                'fecha', fecha_in,
+                'num_standard_res', total_standard_res,
+                'num_no_show_res', total_no_show_res,
+                'num_pax', total_pax,
+                'no_show_pax', total_no_show_pax
+            )
+        );
+    EXCEPTION
+        WHEN OTHERS THEN
+            result := json_build_object(
+                'statusCode', 500,
+                'message', 'Error al ejecutar la consulta',
+                'sqlError', SQLERRM
+            );
+    END;
+
+    RETURN result;
 END;
 $$ LANGUAGE plpgsql;
 
 /*
-SELECT * FROM get_assistants('2023-05-27');
+SELECT get_assistants('2023-05-27');
 */
 
-CREATE OR REPLACE FUNCTION get_reservations_between_dates(fecha_i DATE, fecha_f DATE)
-RETURNS TABLE (
-  fecha DATE,
-  standard_reservations JSON,
-  no_show_reservations JSON,
-  cancelled_reservations JSON,
-  theme_name TEXT
-) AS $$
-BEGIN
-  RETURN QUERY
-  SELECT
-    agenda.fecha AS fecha,
-    JSON_AGG(standard_reservations.*) AS standard_reservations,
-    JSON_AGG(no_show_reservations.*) AS no_show_reservations,
-    JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
-    MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
-  FROM
-    agenda
-  LEFT JOIN
-    standard_reservations ON agenda.fecha = standard_reservations.fecha
-  LEFT JOIN
-    no_show_reservations ON agenda.fecha = no_show_reservations.fecha
-  LEFT JOIN
-    cancelled_reservations ON agenda.fecha = cancelled_reservations.fecha
-  LEFT JOIN
-    restaurant_themes ON agenda.restaurant_theme_id = restaurant_themes.id
-  WHERE
-    agenda.fecha >= fecha_i AND agenda.fecha < fecha_f
-  GROUP BY
-    agenda.fecha
-  ORDER BY
-    agenda.fecha;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION get_reservations_between_dates(fecha_i DATE)
-RETURNS TABLE (
-  fecha DATE,
-  standard_reservations JSON,
-  no_show_reservations JSON,
-  cancelled_reservations JSON,
-  theme_name TEXT
-) AS $$
-BEGIN
-  RETURN QUERY
-  SELECT
-    agenda.fecha AS fecha,
-    JSON_AGG(standard_reservations.*) AS standard_reservations,
-    JSON_AGG(no_show_reservations.*) AS no_show_reservations,
-    JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
-    MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
-  FROM
-    agenda
-  LEFT JOIN
-    standard_reservations ON agenda.fecha = standard_reservations.fecha
-  LEFT JOIN
-    no_show_reservations ON agenda.fecha = no_show_reservations.fecha
-  LEFT JOIN
-    cancelled_reservations ON agenda.fecha = cancelled_reservations.fecha
-  LEFT JOIN
-    restaurant_themes ON agenda.restaurant_theme_id = restaurant_themes.id
-  WHERE
-    agenda.fecha = fecha_i
-  GROUP BY
-    agenda.fecha;
-END;
-$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_statistics(fecha_i DATE, fecha_f DATE)
 RETURNS TABLE (
@@ -722,177 +646,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-/*
-SELECT * FROM get_percentage_per_theme('2023-05-01','2023-05-10');
-*/
-
-CREATE OR REPLACE FUNCTION insert_reservation(
-  _fecha DATE,
-  _hora TIME_OPTIONS_ENUM,
-  _res_number INTEGER,
-  _res_name VARCHAR(100),
-  _room ROOM_OPTIONS_ENUM,
-  _is_bonus BOOLEAN,
-  _bonus_qty INTEGER,
-  _meal_plan MEAL_PLAN_ENUM,
-  _pax_number INTEGER,
-  _cost NUMERIC(10,2),
-  _observations TEXT,
-  _is_noshow BOOLEAN
-) RETURNS reservations AS $$
-DECLARE
-  inserted_reservation reservations;
-BEGIN
-  INSERT INTO reservations (
-    fecha,
-    hora,
-    res_number,
-    res_name,
-    room,
-    is_bonus,
-    bonus_qty,
-    meal_plan,
-    pax_number,
-    cost,
-    observations,
-    is_noshow
-  ) VALUES (
-    _fecha,
-    _hora,
-    _res_number,
-    _res_name,
-    _room,
-    _is_bonus,
-    _bonus_qty,
-    _meal_plan,
-    _pax_number,
-    _cost,
-    _observations,
-    _is_noshow
-  )
-  RETURNING * INTO inserted_reservation;
-
-  RETURN inserted_reservation;
-END;
-$$ LANGUAGE plpgsql;
-
-/*
-SELECT insert_reservation(
-  '2023-05-27',
-  '19:00',
-  1,
-  'John Doe',
-  '024',
-  FALSE,
-  0,
-  'HB',
-  2,
-  50.00,
-  'No special instructions',
-  FALSE
-) AS new_reservation;
-*/
-
-CREATE OR REPLACE FUNCTION update_reservation(
-  _id INTEGER,
-  _fecha DATE DEFAULT NULL,
-  _hora TIME_OPTIONS_ENUM DEFAULT NULL,
-  _res_number INTEGER DEFAULT NULL,
-  _res_name VARCHAR(100) DEFAULT NULL,
-  _room ROOM_OPTIONS_ENUM DEFAULT NULL,
-  _is_bonus BOOLEAN DEFAULT NULL,
-  _bonus_qty INTEGER DEFAULT NULL,
-  _meal_plan MEAL_PLAN_ENUM DEFAULT NULL,
-  _pax_number INTEGER DEFAULT NULL,
-  _cost NUMERIC(10,2) DEFAULT NULL,
-  _observations TEXT DEFAULT NULL,
-  _is_noshow BOOLEAN DEFAULT NULL
-) RETURNS reservations AS $$
-DECLARE
-  updated_reservation reservations;
-BEGIN
-  UPDATE reservations
-  SET
-    fecha = COALESCE(_fecha, fecha),
-    hora = COALESCE(_hora, hora),
-    res_number = COALESCE(_res_number, res_number),
-    res_name = COALESCE(_res_name, res_name),
-    room = COALESCE(_room, room),
-    is_bonus = COALESCE(_is_bonus, is_bonus),
-    bonus_qty = COALESCE(_bonus_qty, bonus_qty),
-    meal_plan = COALESCE(_meal_plan, meal_plan),
-    pax_number = COALESCE(_pax_number, pax_number),
-    cost = COALESCE(_cost, cost),
-    observations = COALESCE(_observations, observations),
-    is_noshow = COALESCE(_is_noshow, is_noshow)
-  WHERE id = _id
-  RETURNING * INTO updated_reservation;
-
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'El update falló en la base de datos.';
-  END IF;
-
-  RETURN updated_reservation;
-END;
-$$ LANGUAGE plpgsql;
-
-/*
-SELECT * FROM update_reservation(15, NULL, NULL, NULL, NULL, NULL, TRUE);
-*/
-
-CREATE OR REPLACE FUNCTION get_payable_reservations(reservation_number INTEGER)
-RETURNS TABLE (
-  id INTEGER,
-  fecha DATE,
-  hora TIME_OPTIONS_ENUM,
-  res_number INTEGER,
-  res_name VARCHAR(100),
-  room ROOM_OPTIONS_ENUM,
-  is_bonus BOOLEAN,
-  bonus_qty INTEGER,
-  meal_plan MEAL_PLAN_ENUM,
-  pax_number INTEGER,
-  cost NUMERIC(10,2),
-  observations TEXT,
-  is_noshow BOOLEAN,
-  created_at TIMESTAMP,
-  updated_at TIMESTAMP,
-  is_deleted BOOLEAN
-) AS $$
-BEGIN
-  RETURN QUERY SELECT *
-    FROM reservations 
-    WHERE reservations.res_number = reservation_number 
-    AND reservations.is_bonus = FALSE 
-    AND reservations.is_deleted = FALSE;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION delete_reservation(reservation_id INTEGER)
-RETURNS INTEGER AS $$
-DECLARE
-    rows_affected INTEGER;
-BEGIN
-    UPDATE reservations
-    SET is_deleted = TRUE
-    WHERE id = reservation_id
-    RETURNING id INTO rows_affected;
-
-    IF rows_affected IS NULL THEN
-        -- No se borró ningún registro
-        RETURN 0;
-    ELSE
-        -- Se borró exitosamente
-        RETURN 1;
-    END IF;
-
-EXCEPTION
-    WHEN OTHERS THEN
-        -- Hubo un error durante la actualización
-        RETURN -1;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION get_agenda_info(_fecha DATE)
 RETURNS JSON AS $$
 DECLARE
@@ -973,12 +726,13 @@ BEGIN
     WHERE
         a.fecha = _fecha;
 
-    RETURN agenda_info;
+    -- Retornar JSON con statusCode y data en caso de éxito
+    RETURN json_build_object('statusCode', 200, 'data', agenda_info);
 
 EXCEPTION
     WHEN OTHERS THEN
-        -- Capturar y devolver el error como objeto JSON
-        RETURN json_build_object('error', SQLERRM);
+        -- Capturar y devolver el error como objeto JSON con statusCode, message y sqlError
+        RETURN json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -995,7 +749,7 @@ DECLARE
 BEGIN
     -- Verificar si la fecha es anterior al CURRENT_DATE
     IF _fecha < CURRENT_DATE THEN
-        RAISE EXCEPTION 'No se puede modificar una agenda pasada';
+        RETURN json_build_object('statusCode', 400, 'message', 'No se puede modificar una agenda pasada');
     END IF;
 
     -- Actualizar los campos modificables de la tabla agenda
@@ -1018,38 +772,43 @@ BEGIN
     WHERE
         agenda.fecha = _fecha;
 
-    -- Obtener la información actualizada de la agenda y el tema del restaurante
-    SELECT
-        json_build_object(
-            'fecha', a.fecha,
-            'theme_name', rt.theme_name,
-            'image_url', rt.image_url,
-            'capacidad a las 19:00', a.t1900,
-            'capacidad a las 19:15', a.t1915,
-            'capacidad a las 19:30', a.t1930,
-            'capacidad a las 19:45', a.t1945,
-            'capacidad a las 20:00', a.t2000,
-            'capacidad a las 20:15', a.t2015,
-            'capacidad a las 20:30', a.t2030,
-            'capacidad a las 20:45', a.t2045,
-            'capacidad a las 21:00', a.t2100,
-            'capacidad a las 21:15', a.t2115,
-            'capacidad a las 21:30', a.t2130,
-            'capacidad a las 21:45', a.t2145
-        ) INTO agenda_info
-    FROM
-        agenda a
-    JOIN
-        restaurant_themes rt ON a.restaurant_theme_id = rt.id
-    WHERE
-        a.fecha = _fecha;
+    -- Verificar si se modificó alguna fila
+    IF FOUND THEN
+        -- Obtener la información actualizada de la agenda y el tema del restaurante
+        SELECT
+            json_build_object(
+                'fecha', a.fecha,
+                'theme_name', rt.theme_name,
+                'image_url', rt.image_url,
+                'capacidad a las 19:00', a.t1900,
+                'capacidad a las 19:15', a.t1915,
+                'capacidad a las 19:30', a.t1930,
+                'capacidad a las 19:45', a.t1945,
+                'capacidad a las 20:00', a.t2000,
+                'capacidad a las 20:15', a.t2015,
+                'capacidad a las 20:30', a.t2030,
+                'capacidad a las 20:45', a.t2045,
+                'capacidad a las 21:00', a.t2100,
+                'capacidad a las 21:15', a.t2115,
+                'capacidad a las 21:30', a.t2130,
+                'capacidad a las 21:45', a.t2145
+            ) INTO agenda_info
+        FROM
+            agenda a
+        JOIN
+            restaurant_themes rt ON a.restaurant_theme_id = rt.id
+        WHERE
+            a.fecha = _fecha;
 
-    RETURN agenda_info;
+        RETURN json_build_object('statusCode', 202, 'data', agenda_info);
+    ELSE
+        RETURN json_build_object('statusCode', 404, 'message', 'No rows affected');
+    END IF;
 
 EXCEPTION
     WHEN OTHERS THEN
         -- Capturar y devolver el error como objeto JSON
-        RETURN json_build_object('error', SQLERRM);
+        RETURN json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1078,21 +837,21 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION create_restaurant_theme(
   _theme_name VARCHAR(255),
   _description TEXT,
-  _image_url VARCHAR(255) DEFAULT NULL
+  _image_url VARCHAR(255) DEFAULT ''
 )
 RETURNS JSON AS $$
 DECLARE
-  result JSON;
+  res restaurant_themes;
 BEGIN
   INSERT INTO restaurant_themes (theme_name, description, image_url)
   VALUES (_theme_name, _description, _image_url)
   RETURNING id, theme_name, description, image_url, created_at, updated_at, is_deleted
-  INTO result;
+  INTO res;
   
   RETURN json_build_object(
     'statusCode', 201,
     'message', 'Restaurant theme created successfully',
-    'data', result
+    'data', row_to_json(res)
   );
 EXCEPTION
   WHEN OTHERS THEN
@@ -1103,6 +862,397 @@ EXCEPTION
     );
 END;
 $$ LANGUAGE plpgsql;
+
+-- Función para actualizar un restaurant_theme
+CREATE OR REPLACE FUNCTION update_restaurant_theme(
+  _id INTEGER,
+  _theme_name VARCHAR(255) DEFAULT NULL,
+  _description TEXT DEFAULT NULL,
+  _image_url VARCHAR(255) DEFAULT NULL
+)
+RETURNS JSON AS $$
+DECLARE
+  result restaurant_themes;
+BEGIN
+  UPDATE restaurant_themes
+  SET
+    theme_name = COALESCE(_theme_name, theme_name),
+    description = COALESCE(_description, description),
+    image_url = COALESCE(_image_url, image_url),
+    updated_at = NOW()
+  WHERE id = _id
+  RETURNING id, theme_name, description, image_url, created_at, updated_at, is_deleted
+  INTO result;
+  
+  IF result IS NULL THEN
+    RETURN json_build_object(
+      'statusCode', 404,
+      'message', 'Restaurant theme not found'
+    );
+  ELSE
+    RETURN json_build_object(
+      'statusCode', 202,
+      'message', 'Restaurant theme updated successfully',
+      'data', row_to_json(result)
+    );
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN json_build_object(
+      'statusCode', 500,
+      'message', 'Error updating restaurant theme',
+      'sqlError', SQLERRM
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Función para borrar un restaurant_theme
+CREATE OR REPLACE FUNCTION delete_restaurant_theme(
+  _id INTEGER
+)
+RETURNS JSON AS $$
+BEGIN
+  UPDATE restaurant_themes
+  SET is_deleted = TRUE
+  WHERE id = _id AND is_deleted = FALSE;
+  
+  IF FOUND THEN
+    RETURN json_build_object(
+      'statusCode', 202,
+      'message', 'Restaurant theme deleted successfully'
+    );
+  ELSE
+    RETURN json_build_object(
+      'statusCode', 404,
+      'message', 'Restaurant theme not found'
+    );
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN json_build_object(
+      'statusCode', 500,
+      'message', 'Error deleting restaurant theme',
+      'sqlError', SQLERRM
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+-- La función se llama "get_bonus_reservations" y recibe un parámetro de entrada "reservation_number" de tipo INTEGER.
+-- La función devuelve una tabla con los mismos campos que la tabla "reservations".
+-- Dentro de la función, se utiliza la cláusula "RETURN QUERY" para devolver los registros que cumplen con las condiciones especificadas en la cláusula "WHERE".
+-- La condición "res_number = reservation_number" filtra los registros por el número de reserva que se ha pasado como parámetro.
+-- La condición "is_bonus = TRUE" filtra los registros por aquellos que tienen el campo "is_bonus" igual a true.
+
+CREATE OR REPLACE FUNCTION get_bonus_reservations(reservation_number INTEGER)
+RETURNS TABLE (
+  id INTEGER,
+  fecha DATE,
+  hora TIME_OPTIONS_ENUM,
+  res_number INTEGER,
+  res_name VARCHAR(100),
+  room ROOM_OPTIONS_ENUM,
+  is_bonus BOOLEAN,
+  bonus_qty INTEGER,
+  meal_plan MEAL_PLAN_ENUM,
+  pax_number INTEGER,
+  cost NUMERIC(10,2),
+  observations TEXT,
+  is_noshow BOOLEAN,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  is_deleted BOOLEAN
+) AS $$
+BEGIN
+  RETURN QUERY SELECT *
+    FROM reservations 
+    WHERE reservations.res_number = reservation_number 
+    AND reservations.is_bonus = TRUE 
+    AND reservations.is_deleted = FALSE;
+END;
+$$ LANGUAGE plpgsql;
+
+/* 
+SELECT * FROM get_bonus_reservations(1);
+*/
+
+
+CREATE OR REPLACE FUNCTION get_reservations_between_dates(fecha_i DATE, fecha_f DATE)
+RETURNS TABLE (
+  fecha DATE,
+  standard_reservations JSON,
+  no_show_reservations JSON,
+  cancelled_reservations JSON,
+  theme_name TEXT
+) AS $$
+BEGIN
+  BEGIN
+    RETURN QUERY
+    SELECT
+      agenda.fecha AS fecha,
+      JSON_AGG(standard_reservations.*) AS standard_reservations,
+      JSON_AGG(no_show_reservations.*) AS no_show_reservations,
+      JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
+      MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
+    FROM
+      agenda
+    LEFT JOIN
+      standard_reservations ON agenda.fecha = standard_reservations.fecha
+    LEFT JOIN
+      no_show_reservations ON agenda.fecha = no_show_reservations.fecha
+    LEFT JOIN
+      cancelled_reservations ON agenda.fecha = cancelled_reservations.fecha
+    LEFT JOIN
+      restaurant_themes ON agenda.restaurant_theme_id = restaurant_themes.id
+    WHERE
+      agenda.fecha >= fecha_i AND agenda.fecha < fecha_f
+    GROUP BY
+      agenda.fecha
+    ORDER BY
+      agenda.fecha;
+  EXCEPTION
+    WHEN OTHERS THEN
+      RETURN QUERY
+      SELECT
+        '1900-01-01'::DATE AS fecha,
+        '[]'::JSON AS standard_reservations,
+        '[]'::JSON AS no_show_reservations,
+        '[]'::JSON AS cancelled_reservations,
+        SQLERRM::TEXT AS theme_name;
+  END;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT * FROM get_reservations_between_dates('2000-01-01','2023-05-31');
+*/
+
+CREATE OR REPLACE FUNCTION get_reservations_between_dates(fecha_i DATE)
+RETURNS TABLE (
+  fecha DATE,
+  standard_reservations JSON,
+  no_show_reservations JSON,
+  cancelled_reservations JSON,
+  theme_name TEXT
+) AS $$
+BEGIN
+  BEGIN
+    RETURN QUERY
+    SELECT
+        agenda.fecha AS fecha,
+        JSON_AGG(standard_reservations.*) AS standard_reservations,
+        JSON_AGG(no_show_reservations.*) AS no_show_reservations,
+        JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
+        MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
+    FROM
+        agenda
+    LEFT JOIN
+        standard_reservations ON agenda.fecha = standard_reservations.fecha
+    LEFT JOIN
+        no_show_reservations ON agenda.fecha = no_show_reservations.fecha
+    LEFT JOIN
+        cancelled_reservations ON agenda.fecha = cancelled_reservations.fecha
+    LEFT JOIN
+        restaurant_themes ON agenda.restaurant_theme_id = restaurant_themes.id
+    WHERE
+        agenda.fecha = fecha_i
+    GROUP BY
+        agenda.fecha;
+  EXCEPTION
+    WHEN OTHERS THEN
+      RETURN QUERY
+      SELECT
+        '1900-01-01'::DATE AS fecha,
+        '[]'::JSON AS standard_reservations,
+        '[]'::JSON AS no_show_reservations,
+        '[]'::JSON AS cancelled_reservations,
+        SQLERRM::TEXT AS theme_name;
+  END;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT * FROM get_reservations_between_dates('2023-05-31');
+*/
+
+CREATE OR REPLACE FUNCTION insert_reservation(
+  _fecha DATE,
+  _hora TIME_OPTIONS_ENUM,
+  _res_number INTEGER,
+  _res_name VARCHAR(100),
+  _room ROOM_OPTIONS_ENUM,
+  _is_bonus BOOLEAN,
+  _bonus_qty INTEGER,
+  _meal_plan MEAL_PLAN_ENUM,
+  _pax_number INTEGER,
+  _cost NUMERIC(10,2),
+  _observations TEXT,
+  _is_noshow BOOLEAN
+) RETURNS JSON AS $$
+DECLARE
+  inserted_reservation reservations;
+  response JSON;
+BEGIN
+  BEGIN
+    IF _fecha < CURRENT_DATE THEN
+      response := json_build_object('statusCode', 400, 'message', 'Bad request: No record inserted - Date is in the past');
+    ELSE
+      BEGIN
+        INSERT INTO reservations (
+          fecha,
+          hora,
+          res_number,
+          res_name,
+          room,
+          is_bonus,
+          bonus_qty,
+          meal_plan,
+          pax_number,
+          cost,
+          observations,
+          is_noshow
+        ) VALUES (
+          _fecha,
+          _hora,
+          _res_number,
+          _res_name,
+          _room,
+          _is_bonus,
+          _bonus_qty,
+          _meal_plan,
+          _pax_number,
+          _cost,
+          _observations,
+          _is_noshow
+        )
+        RETURNING * INTO inserted_reservation;
+
+        IF inserted_reservation IS NULL THEN
+          response := json_build_object('statusCode', 404, 'message', 'Not found: No record inserted');
+        ELSE
+          response := json_build_object('statusCode', 201, 'data', inserted_reservation);
+        END IF;
+      EXCEPTION
+        WHEN OTHERS THEN
+          response := json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
+      END;
+    END IF;
+
+    RETURN response;
+  END;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT insert_reservation(
+  '2023-05-27',
+  '19:00',
+  1,
+  'John Doe',
+  '024',
+  FALSE,
+  0,
+  'HB',
+  2,
+  50.00,
+  'No special instructions',
+  FALSE
+) AS new_reservation;
+*/
+
+SELECT update_reservation(
+	226,
+  '2023-05-31',
+  '19:00',
+  1,
+  'Jane Doe',
+  '025',
+  FALSE,
+  0,
+  'HB',
+  2,
+  50.00,
+  'No special instructions',
+  FALSE
+) AS new_reservation;
+
+/*
+SELECT update_reservation(
+	226,
+  '2023-05-31',
+  '19:00',
+  1,
+  'Jane Doe',
+  '025',
+  FALSE,
+  0,
+  'HB',
+  2,
+  50.00,
+  'No special instructions',
+  FALSE
+) AS new_reservation;
+SELECT * FROM update_reservation(15, NULL, NULL, NULL, NULL, NULL, TRUE);
+*/
+
+
+CREATE OR REPLACE FUNCTION get_payable_reservations(reservation_number INTEGER)
+RETURNS TABLE (
+  id INTEGER,
+  fecha DATE,
+  hora TIME_OPTIONS_ENUM,
+  res_number INTEGER,
+  res_name VARCHAR(100),
+  room ROOM_OPTIONS_ENUM,
+  is_bonus BOOLEAN,
+  bonus_qty INTEGER,
+  meal_plan MEAL_PLAN_ENUM,
+  pax_number INTEGER,
+  cost NUMERIC(10,2),
+  observations TEXT,
+  is_noshow BOOLEAN,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  is_deleted BOOLEAN
+) AS $$
+BEGIN
+  RETURN QUERY SELECT *
+    FROM reservations 
+    WHERE reservations.res_number = reservation_number 
+    AND reservations.is_bonus = FALSE 
+    AND reservations.is_deleted = FALSE;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION delete_reservation(reservation_id INTEGER)
+RETURNS JSON AS $$
+DECLARE
+    rows_affected INTEGER;
+    response JSON;
+BEGIN
+  BEGIN
+    UPDATE reservations
+    SET is_deleted = TRUE
+    WHERE id = reservation_id
+	AND is_deleted = FALSE
+    RETURNING id INTO rows_affected;
+
+    IF rows_affected IS NULL THEN
+      response := json_build_object('statusCode', 404, 'message', 'Not found: Reservation not deleted');
+    ELSE
+      response := json_build_object('statusCode', 202, 'data', rows_affected);
+    END IF;
+  EXCEPTION
+    WHEN OTHERS THEN
+      response := json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
+  END;
+
+  RETURN response;
+END;
+$$ LANGUAGE plpgsql;
+
+/*
+SELECT delete_reservation(226);
+*/
 
 -- FUNCTIONS TRIGGERS
 
