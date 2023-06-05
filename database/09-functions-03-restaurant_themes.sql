@@ -7,6 +7,7 @@ CREATE OR REPLACE FUNCTION create_restaurant_theme(
 RETURNS JSON AS $$
 DECLARE
   res restaurant_themes;
+  stack_info TEXT;
 BEGIN
   INSERT INTO restaurant_themes (theme_name, description, image_url)
   VALUES (_theme_name, _description, _image_url)
@@ -14,16 +15,18 @@ BEGIN
   INTO res;
   
   RETURN json_build_object(
-    'statusCode', 201,
+    'isError', FALSE,
     'message', 'Restaurant theme created successfully',
-    'data', row_to_json(res)
+    'result', row_to_json(res)
   );
 EXCEPTION
   WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
     RETURN json_build_object(
-      'statusCode', 500,
-      'message', 'Error creating restaurant theme',
-      'sqlError', SQLERRM
+      'isError', TRUE,
+      'message', SQLERRM,
+      'errorCode', SQLSTATE,
+      'stack', stack_info
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -37,6 +40,7 @@ CREATE OR REPLACE FUNCTION update_restaurant_theme(
 )
 RETURNS JSON AS $$
 DECLARE
+  stack_info TEXT;
   result restaurant_themes;
 BEGIN
   UPDATE restaurant_themes
@@ -51,22 +55,27 @@ BEGIN
   
   IF result IS NULL THEN
     RETURN json_build_object(
-      'statusCode', 404,
-      'message', 'Restaurant theme not found'
+      'isError', FALSE,
+      'message', 'Restaurant theme not found',
+      'result', NULL,
+      'rowsAffected', 0
     );
   ELSE
     RETURN json_build_object(
-      'statusCode', 202,
+      'isError', FALSE,
       'message', 'Restaurant theme updated successfully',
-      'data', row_to_json(result)
+      'result', row_to_json(result),
+      'rowsAffected', 1
     );
   END IF;
 EXCEPTION
   WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
     RETURN json_build_object(
-      'statusCode', 500,
-      'message', 'Error updating restaurant theme',
-      'sqlError', SQLERRM
+        'isError', TRUE,
+        'message', SQLERRM,
+        'errorCode', SQLSTATE,
+        'stack', stack_info
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -76,6 +85,8 @@ CREATE OR REPLACE FUNCTION delete_restaurant_theme(
   _id INTEGER
 )
 RETURNS JSON AS $$
+DECLARE
+  stack_info TEXT;
 BEGIN
   UPDATE restaurant_themes
   SET is_deleted = TRUE
@@ -83,21 +94,25 @@ BEGIN
   
   IF FOUND THEN
     RETURN json_build_object(
-      'statusCode', 202,
-      'message', 'Restaurant theme deleted successfully'
+      'isError', FALSE,
+      'message', 'Restaurant theme deleted successfully',
+      'rowsAffected', 1
     );
   ELSE
     RETURN json_build_object(
-      'statusCode', 404,
-      'message', 'Restaurant theme not found'
+      'isError', FALSE,
+      'message', 'Restaurant theme not found',
+      'rowsAffected', 0
     );
   END IF;
 EXCEPTION
   WHEN OTHERS THEN
+    GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
     RETURN json_build_object(
-      'statusCode', 500,
-      'message', 'Error deleting restaurant theme',
-      'sqlError', SQLERRM
+        'isError', TRUE,
+        'message', SQLERRM,
+        'errorCode', SQLSTATE,
+        'stack', stack_info
     );
 END;
 $$ LANGUAGE plpgsql;

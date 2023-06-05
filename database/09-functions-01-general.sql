@@ -64,8 +64,9 @@ RETURNS JSON AS $$
 DECLARE 
     total_standard_res INT;
     total_no_show_res INT;
-    total_pax INT;
+    total_standard_pax INT;
     total_no_show_pax INT;
+    stack_info TEXT;
     result JSON;
 BEGIN 
     BEGIN
@@ -77,7 +78,7 @@ BEGIN
         FROM no_show_reservations
         WHERE fecha = fecha_in;
 
-        SELECT SUM(pax_number) INTO total_pax
+        SELECT SUM(pax_number) INTO total_standard_pax
         FROM standard_reservations
         WHERE fecha = fecha_in;
 
@@ -86,21 +87,23 @@ BEGIN
         WHERE fecha = fecha_in;
 
         result := json_build_object(
-            'statusCode', 200,
-            'data', json_build_object(
-                'fecha', fecha_in,
-                'num_standard_res', total_standard_res,
-                'num_no_show_res', total_no_show_res,
-                'num_pax', total_pax,
-                'no_show_pax', total_no_show_pax
+            'isError', FALSE,
+            'result', json_build_object(
+                'fecha', fecha_in, -- DATE
+                'num_standard_res', total_standard_res, -- INTEGER
+                'num_no_show_res', total_no_show_res, -- INTEGER
+                'num_standard_pax', total_standard_pax, --  INTEGER | NULL
+                'no_show_pax', total_no_show_pax -- INTEGER | NULL
             )
         );
     EXCEPTION
         WHEN OTHERS THEN
+            GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
             result := json_build_object(
-                'statusCode', 500,
-                'message', 'Error al ejecutar la consulta',
-                'sqlError', SQLERRM
+                'isError', TRUE,
+                'message', SQLERRM,
+                'errorCode', SQLSTATE,
+                'stack', stack_info
             );
     END;
 

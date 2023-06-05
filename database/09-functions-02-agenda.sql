@@ -3,6 +3,7 @@ CREATE OR REPLACE FUNCTION get_agenda_info(_fecha DATE)
 RETURNS JSON AS $$
 DECLARE
     agenda_info JSON;
+    stack_info TEXT;
 BEGIN
     -- Obtener la información de la agenda y el tema del restaurante para la fecha especificada
     SELECT
@@ -10,18 +11,18 @@ BEGIN
             'fecha', a.fecha,
             'theme_name', rt.theme_name,
             'image_url', rt.image_url,
-            'capacidad a las 19:00', a.t1900,
-            'capacidad a las 19:15', a.t1915,
-            'capacidad a las 19:30', a.t1930,
-            'capacidad a las 19:45', a.t1945,
-            'capacidad a las 20:00', a.t2000,
-            'capacidad a las 20:15', a.t2015,
-            'capacidad a las 20:30', a.t2030,
-            'capacidad a las 20:45', a.t2045,
-            'capacidad a las 21:00', a.t2100,
-            'capacidad a las 21:15', a.t2115,
-            'capacidad a las 21:30', a.t2130,
-            'capacidad a las 21:45', a.t2145
+            '19:00', a.t1900,
+            '19:15', a.t1915,
+            '19:30', a.t1930,
+            '19:45', a.t1945,
+            '20:00', a.t2000,
+            '20:15', a.t2015,
+            '20:30', a.t2030,
+            '20:45', a.t2045,
+            '21:00', a.t2100,
+            '21:15', a.t2115,
+            '21:30', a.t2130,
+            '21:45', a.t2145
         ) INTO agenda_info
     FROM
         agenda AS a
@@ -30,18 +31,28 @@ BEGIN
     WHERE
         a.fecha = _fecha;
     
-    RETURN agenda_info;
+    RETURN json_build_object(
+        'isError', FALSE,
+        'result', agenda_info -- schema | NULL
+    );
     
 EXCEPTION
     WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
         -- Capturar y devolver el error como objeto JSON
-        RETURN json_build_object('error', SQLERRM);
+        RETURN json_build_object(
+            'isError', TRUE,
+            'message', SQLERRM,
+            'errorCode', SQLSTATE,
+            'stack', stack_info
+        );
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION create_agenda(_fecha DATE, _restaurant_theme_id INTEGER)
 RETURNS JSON AS $$
 DECLARE
+    stack_info TEXT;
     agenda_info JSON;
 BEGIN
     -- Verificar si la fecha es anterior al CURRENT_DATE
@@ -59,18 +70,18 @@ BEGIN
             'fecha', a.fecha,
             'theme_name', rt.theme_name,
             'image_url', rt.image_url,
-            'capacidad a las 19:00', a.t1900,
-            'capacidad a las 19:15', a.t1915,
-            'capacidad a las 19:30', a.t1930,
-            'capacidad a las 19:45', a.t1945,
-            'capacidad a las 20:00', a.t2000,
-            'capacidad a las 20:15', a.t2015,
-            'capacidad a las 20:30', a.t2030,
-            'capacidad a las 20:45', a.t2045,
-            'capacidad a las 21:00', a.t2100,
-            'capacidad a las 21:15', a.t2115,
-            'capacidad a las 21:30', a.t2130,
-            'capacidad a las 21:45', a.t2145
+            '19:00', a.t1900,
+            '19:15', a.t1915,
+            '19:30', a.t1930,
+            '19:45', a.t1945,
+            '20:00', a.t2000,
+            '20:15', a.t2015,
+            '20:30', a.t2030,
+            '20:45', a.t2045,
+            '21:00', a.t2100,
+            '21:15', a.t2115,
+            '21:30', a.t2130,
+            '21:45', a.t2145
         ) INTO agenda_info
     FROM
         agenda a
@@ -80,12 +91,17 @@ BEGIN
         a.fecha = _fecha;
 
     -- Retornar JSON con statusCode y data en caso de éxito
-    RETURN json_build_object('statusCode', 200, 'data', agenda_info);
+    RETURN json_build_object('isError', FALSE, 'result', agenda_info);
 
 EXCEPTION
     WHEN OTHERS THEN
-        -- Capturar y devolver el error como objeto JSON con statusCode, message y sqlError
-        RETURN json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
+        GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+        RETURN json_build_object(
+            'isError', TRUE,
+            'message', SQLERRM,
+            'errorCode', SQLSTATE,
+            'stack', stack_info
+        );
 END;
 $$ LANGUAGE plpgsql;
 
@@ -99,10 +115,15 @@ CREATE OR REPLACE FUNCTION update_agenda(_fecha DATE, _restaurant_theme_id INTEG
 RETURNS JSON AS $$
 DECLARE
     agenda_info JSON;
+    stack_info TEXT;
 BEGIN
     -- Verificar si la fecha es anterior al CURRENT_DATE
     IF _fecha < CURRENT_DATE THEN
-        RETURN json_build_object('statusCode', 400, 'message', 'No se puede modificar una agenda pasada');
+        RETURN json_build_object(
+            'isError', TRUE,
+            'message', 'Bad Request 400 No se puede modificar una agenda pasada',
+            'errorCode', 'P0001'
+        );
     END IF;
 
     -- Actualizar los campos modificables de la tabla agenda
@@ -133,18 +154,18 @@ BEGIN
                 'fecha', a.fecha,
                 'theme_name', rt.theme_name,
                 'image_url', rt.image_url,
-                'capacidad a las 19:00', a.t1900,
-                'capacidad a las 19:15', a.t1915,
-                'capacidad a las 19:30', a.t1930,
-                'capacidad a las 19:45', a.t1945,
-                'capacidad a las 20:00', a.t2000,
-                'capacidad a las 20:15', a.t2015,
-                'capacidad a las 20:30', a.t2030,
-                'capacidad a las 20:45', a.t2045,
-                'capacidad a las 21:00', a.t2100,
-                'capacidad a las 21:15', a.t2115,
-                'capacidad a las 21:30', a.t2130,
-                'capacidad a las 21:45', a.t2145
+                '19:00', a.t1900,
+                '19:15', a.t1915,
+                '19:30', a.t1930,
+                '19:45', a.t1945,
+                '20:00', a.t2000,
+                '20:15', a.t2015,
+                '20:30', a.t2030,
+                '20:45', a.t2045,
+                '21:00', a.t2100,
+                '21:15', a.t2115,
+                '21:30', a.t2130,
+                '21:45', a.t2145
             ) INTO agenda_info
         FROM
             agenda a
@@ -153,15 +174,15 @@ BEGIN
         WHERE
             a.fecha = _fecha;
 
-        RETURN json_build_object('statusCode', 202, 'data', agenda_info);
+        RETURN json_build_object('isError', FALSE, 'result', agenda_info, 'rowsAffected', 1);
     ELSE
-        RETURN json_build_object('statusCode', 404, 'message', 'No rows affected');
+        RETURN json_build_object('isError', FALSE, 'result', NULL, 'rowsAffected', 0);
     END IF;
 
 EXCEPTION
     WHEN OTHERS THEN
-        -- Capturar y devolver el error como objeto JSON
-        RETURN json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
+        GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+        RETURN json_build_object('isError', TRUE, 'message', SQLERRM, 'errorCode', SQLSTATE);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -169,20 +190,33 @@ CREATE OR REPLACE FUNCTION delete_agenda(_fecha DATE)
 RETURNS JSON AS $$
 DECLARE
   res_count INTEGER;
+  stack_info TEXT;
 BEGIN
   IF _fecha < CURRENT_DATE THEN
-    RETURN '{"statusCode": 400, "message": "No se puede borrar una agenda pasada"}';
+    RETURN '{"isError": true, "message": "BAD REQUEST 400 No se puede borrar una agenda pasada"}';
   END IF;
-  UPDATE agenda SET is_deleted = TRUE WHERE fecha = _fecha;
+  UPDATE agenda SET is_deleted = TRUE WHERE fecha = _fecha AND is_deleted = FALSE;
   GET DIAGNOSTICS res_count = ROW_COUNT;
   IF res_count = 0 THEN
-    RETURN '{"statusCode": 404, "message": "No se encontró agenda con la fecha especificada"}';
+    RETURN '{"isError": false, "message": "No se encontró agenda con la fecha especificada", "rowsAffected":0, "reservationsDeleted":0}';
   END IF;
-  UPDATE reservations SET is_deleted = TRUE WHERE fecha = _fecha;
+  UPDATE reservations SET is_deleted = TRUE WHERE fecha = _fecha AND is_deleted = FALSE;
   GET DIAGNOSTICS res_count = ROW_COUNT;
-  RETURN '{"statusCode": 202, "message": "Agenda con ' || _fecha || ' borrada y ' || res_count || ' reservas canceladas"}';
+  -- RAISE NOTICE 'reservas %', res_count; 
+  RETURN json_build_object(
+    'isError', FALSE,
+    'message', 'Agenda del día '||_fecha||' borrada con '||res_count||' reservas borradas',
+    'rowsAffected', 1,
+    'reservationsDeleted', COALESCE(res_count, 0)
+  );
 EXCEPTION
   WHEN OTHERS THEN
-    RETURN '{"statusCode": 500, "message": "Error al borrar agenda con ' || _fecha || '", "sqlError": "' || SQLERRM || '"}';
+    GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+    RETURN json_build_object(
+        'isError', TRUE,
+        'message', SQLERRM,
+        'errorCode', SQLSTATE,
+        'stack', stack_info
+    );
 END;
 $$ LANGUAGE plpgsql;

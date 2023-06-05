@@ -51,9 +51,9 @@ BEGIN
     RETURN QUERY
     SELECT
       agenda.fecha AS fecha,
-      JSON_AGG(standard_reservations.*) AS standard_reservations,
-      JSON_AGG(no_show_reservations.*) AS no_show_reservations,
-      JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
+      JSON_AGG(standard_reservations.*) FILTER (WHERE standard_reservations.* IS NOT NULL) AS standard_reservations,
+      JSON_AGG(no_show_reservations.*) FILTER (WHERE no_show_reservations.* IS NOT NULL) AS no_show_reservations,
+      JSON_AGG(cancelled_reservations.*) FILTER (WHERE cancelled_reservations.* IS NOT NULL) AS cancelled_reservations,
       MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
     FROM
       agenda
@@ -101,9 +101,9 @@ BEGIN
     RETURN QUERY
     SELECT
         agenda.fecha AS fecha,
-        JSON_AGG(standard_reservations.*) AS standard_reservations,
-        JSON_AGG(no_show_reservations.*) AS no_show_reservations,
-        JSON_AGG(cancelled_reservations.*) AS cancelled_reservations,
+        JSON_AGG(standard_reservations.*) FILTER (WHERE standard_reservations.* IS NOT NULL) AS standard_reservations,
+      JSON_AGG(no_show_reservations.*) FILTER (WHERE no_show_reservations.* IS NOT NULL) AS no_show_reservations,
+      JSON_AGG(cancelled_reservations.*) FILTER (WHERE cancelled_reservations.* IS NOT NULL) AS cancelled_reservations,
         MAX(DISTINCT(restaurant_themes.theme_name)) AS theme_name
     FROM
         agenda
@@ -118,6 +118,8 @@ BEGIN
     WHERE
         agenda.fecha = fecha_i
     GROUP BY
+        agenda.fecha
+    ORDER BY
         agenda.fecha;
   EXCEPTION
     WHEN OTHERS THEN
@@ -153,10 +155,15 @@ CREATE OR REPLACE FUNCTION insert_reservation(
 DECLARE
   inserted_reservation reservations;
   response JSON;
+  stack_info TEXT;
 BEGIN
   BEGIN
     IF _fecha < CURRENT_DATE THEN
-      response := json_build_object('statusCode', 400, 'message', 'Bad request: No record inserted - Date is in the past');
+      response := json_build_object(
+        'isError', FALSE,
+        'message', 'Bad request: No record inserted - Date is in the past',
+        'rowsAffected', 0
+      );
     ELSE
       BEGIN
         INSERT INTO reservations (
@@ -189,13 +196,22 @@ BEGIN
         RETURNING * INTO inserted_reservation;
 
         IF inserted_reservation IS NULL THEN
-          response := json_build_object('statusCode', 404, 'message', 'Not found: No record inserted');
+          response := json_build_object(
+            'isError', TRUE, 'message', 'No record inserted',
+            'rowsAffected', 0
+            );
         ELSE
-          response := json_build_object('statusCode', 201, 'data', inserted_reservation);
+          response := json_build_object(
+            'isError', FALSE, 'result', inserted_reservation, 'rowsAffected', 1
+            );
         END IF;
       EXCEPTION
         WHEN OTHERS THEN
-          response := json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
+          GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+          response := json_build_object(
+            'isError', TRUE, 'message', SQLERRM, 'errorCode', SQLSTATE,
+            'stack', stack_info
+            );
       END;
     END IF;
 
@@ -290,6 +306,7 @@ RETURNS JSON AS $$
 DECLARE
     rows_affected INTEGER;
     response JSON;
+    stack_info TEXT;
 BEGIN
   BEGIN
     UPDATE reservations
@@ -299,13 +316,19 @@ BEGIN
     RETURNING id INTO rows_affected;
 
     IF rows_affected IS NULL THEN
-      response := json_build_object('statusCode', 404, 'message', 'Not found: Reservation not deleted');
+      response := json_build_object('isError', FALSE, 'message', 'Not found: Reservation not deleted',
+      'rowsAffected', 0);
     ELSE
-      response := json_build_object('statusCode', 202, 'data', rows_affected);
+      response := json_build_object('isError', FALSE, 'message', 'Reservation deleted successfully',
+      'rowsAffected', 1);
     END IF;
   EXCEPTION
     WHEN OTHERS THEN
-      response := json_build_object('statusCode', 500, 'message', SQLERRM, 'sqlError', SQLSTATE);
+      GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+      response := json_build_object(
+        'isError', TRUE, 'message', SQLERRM, 'sqlError', SQLSTATE,
+        'stack', stack_info
+        );
   END;
 
   RETURN response;
