@@ -20,8 +20,9 @@ export default registerAs('config', () => {
     db: {
       name: process.env.DB_NAME,
       host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
+      port: parseInt(process.env.DB_PORT, 10),
       pass: process.env.DB_PASS,
+      user: process.env.DB_USER,
     },
   };
 });

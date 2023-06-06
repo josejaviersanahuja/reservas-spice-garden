@@ -1227,21 +1227,6 @@ SELECT insert_reservation(
 ) AS new_reservation;
 */
 
-SELECT update_reservation(
-	226,
-  '2023-05-31',
-  '19:00',
-  1,
-  'Jane Doe',
-  '025',
-  FALSE,
-  0,
-  'HB',
-  2,
-  50.00,
-  'No special instructions',
-  FALSE
-) AS new_reservation;
 
 /*
 SELECT update_reservation(

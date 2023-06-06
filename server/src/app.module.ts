@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import configFile, { ENVIROMENT_FILE } from './config';
 import { validate } from './env.validations';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { validate } from './env.validations';
       isGlobal: true,
       validate,
     }),
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
