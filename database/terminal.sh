@@ -22,6 +22,8 @@ cat 09-functions-03-restaurant_themes.sql >> X_respaldo.sql &&
 cat 09-functions-03-restaurant_themes.sql >> Y_respaldo_test.sql &&
 cat 09-functions-04-reservations.sql >> X_respaldo.sql &&
 cat 09-functions-04-reservations.sql >> Y_respaldo_test.sql &&
+cat 09-functions-05-users.sql >> X_respaldo.sql &&
+cat 09-functions-05-users.sql >> Y_respaldo_test.sql &&
 cat 10-triggers.sql >> X_respaldo.sql &&
 cat 10-triggers.sql >> Y_respaldo_test.sql &&
 nano Y_respaldo_test.sql

@@ -6,6 +6,10 @@ import { AppService } from './app.service';
 import configFile, { ENVIROMENT_FILE } from './config';
 import { validate } from './env.validations';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './components/users/users.module';
+import { RestaurantThemesModule } from './components/restaurant-themes/restaurant-themes.module';
+import { AgendaModule } from './components/agenda/agenda.module';
+import { ReservationsModule } from './components/reservations/reservations.module';
 
 @Module({
   imports: [
@@ -16,6 +20,10 @@ import { DatabaseModule } from './database/database.module';
       validate,
     }),
     DatabaseModule,
+    UsersModule,
+    RestaurantThemesModule,
+    AgendaModule,
+    ReservationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
