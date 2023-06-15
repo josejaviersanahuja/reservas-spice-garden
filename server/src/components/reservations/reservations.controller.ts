@@ -16,4 +16,9 @@ export class ReservationsController {
   getReservationsByDate(@Param('fecha') fecha: string) {
     return `endpoint reservation con fecha ${fecha}`;
   }
+
+  @Get('dummy')
+  getDummyReservations() {
+    return '';
+  }
 }

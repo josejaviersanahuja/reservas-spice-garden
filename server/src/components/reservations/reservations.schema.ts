@@ -1,26 +1,44 @@
-import { IsBoolean, IsDate, IsEnum, IsNumber, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
 import { MEAL_PLAN, ROOM_OPTIONS, TIME_OPTIONS } from '../app.schema';
 
 export class Reservation {
-  @IsNumber()
+  @IsInt()
+  @Min(1)
+  @IsPositive()
   readonly id: number;
   @IsDate()
   readonly fecha: Date;
   @IsEnum(TIME_OPTIONS)
   readonly hora: TIME_OPTIONS;
-  @IsNumber()
+  @IsInt()
+  @Min(1)
+  @IsPositive()
   readonly res_number: number;
   @IsString()
+  @IsNotEmpty()
   readonly res_name: string;
   @IsString()
   readonly room: ROOM_OPTIONS;
   @IsBoolean()
   readonly is_bonus: boolean;
-  @IsNumber()
+  @IsInt()
+  @Min(0)
+  @IsPositive({})
   readonly bonus_qty: number;
   @IsEnum(MEAL_PLAN)
   readonly meal_plan: MEAL_PLAN;
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   readonly pax_number: number;
   @IsNumber()
   readonly cost: number;
