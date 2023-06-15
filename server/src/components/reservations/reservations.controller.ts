@@ -1,24 +1,29 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ReservationsService } from './reservations.service';
+import { ReservationPostDTO } from './reservations.schema';
+import { ValidateStringDatePipe } from './reservations.pipes';
 
 @Controller('reservations')
 export class ReservationsController {
-  // constructor() {}
+  constructor(private reservationService: ReservationsService) {}
 
   @Get()
   getReservations(
-    @Query('fecha0') fecha0: string,
-    @Query('fecha1') fecha1: string,
+    @Query('fecha0', ValidateStringDatePipe) fecha0: string,
+    @Query('fecha1', ValidateStringDatePipe) fecha1: string,
   ) {
-    return `endpoint reservations entre las fechas ${fecha0} y ${fecha1}`;
+    return this.reservationService.getReservationsBetweenDates(fecha0, fecha1);
   }
 
   @Get('/:fecha')
-  getReservationsByDate(@Param('fecha') fecha: string) {
-    return `endpoint reservation con fecha ${fecha}`;
+  async getReservationsByDate(
+    @Param('fecha', ValidateStringDatePipe) fecha: string,
+  ) {
+    return this.reservationService.getReservationsByDate(fecha);
   }
 
-  @Get('dummy')
-  getDummyReservations() {
-    return '';
+  @Post()
+  postReservation(@Body() dto: ReservationPostDTO) {
+    return this.reservationService.createReservation(dto);
   }
 }

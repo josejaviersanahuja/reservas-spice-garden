@@ -1,11 +1,17 @@
 import { Module, Global } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import * as Pool from 'pg-pool';
-
-import config from 'src/config';
+import config, { ENVIROMENT_FILE } from '../config';
 
 @Global()
 @Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: ENVIROMENT_FILE,
+      load: [config],
+      isGlobal: true,
+    }),
+  ],
   providers: [
     {
       provide: 'pg',

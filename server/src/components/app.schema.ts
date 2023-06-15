@@ -196,3 +196,12 @@ export enum MEAL_PLAN {
   'FB',
   'AI',
 }
+
+export interface PostgresCrudService<T> {
+  isError: boolean;
+  message: string;
+  errorCode?: string;
+  stack?: string;
+  rowsAffected?: number;
+  result?: T;
+}

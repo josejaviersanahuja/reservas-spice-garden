@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsDate,
+  IsDateString,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -23,33 +24,64 @@ export class Reservation {
   @IsInt()
   @Min(1)
   @IsPositive()
-  readonly res_number: number;
+  readonly resNumber: number;
   @IsString()
   @IsNotEmpty()
-  readonly res_name: string;
+  readonly resName: string;
   @IsString()
   readonly room: ROOM_OPTIONS;
   @IsBoolean()
-  readonly is_bonus: boolean;
+  readonly isBonus: boolean;
   @IsInt()
   @Min(0)
-  @IsPositive({})
-  readonly bonus_qty: number;
+  readonly bonusQty: number;
   @IsEnum(MEAL_PLAN)
-  readonly meal_plan: MEAL_PLAN;
+  readonly mealPlan: MEAL_PLAN;
   @IsInt()
   @Min(1)
-  readonly pax_number: number;
+  readonly paxNumber: number;
   @IsNumber()
   readonly cost: number;
   @IsString()
   readonly observations: string;
   @IsBoolean()
-  readonly is_noshow: boolean;
+  readonly isNoshow: boolean;
   @IsDate()
-  readonly created_at: Date;
+  readonly createdAt: Date;
   @IsDate()
-  readonly updated_at: Date;
+  readonly updatedAt: Date;
   @IsBoolean()
-  readonly is_deleted: boolean;
+  readonly isDeleted: boolean;
+}
+
+export class ReservationPostDTO {
+  @IsDateString()
+  readonly fecha: Date;
+  @IsEnum(TIME_OPTIONS)
+  readonly hora: TIME_OPTIONS;
+  @IsInt()
+  @Min(1)
+  @IsPositive()
+  readonly resNumber: number;
+  @IsString()
+  @IsNotEmpty()
+  readonly resName: string;
+  @IsString()
+  readonly room: ROOM_OPTIONS;
+  @IsBoolean()
+  readonly isBonus: boolean;
+  @IsInt()
+  @Min(0)
+  readonly bonusQty: number;
+  @IsEnum(MEAL_PLAN)
+  readonly mealPlan: MEAL_PLAN;
+  @IsInt()
+  @Min(1)
+  readonly paxNumber: number;
+  @IsNumber()
+  readonly cost: number;
+  @IsString()
+  readonly observations: string;
+  @IsBoolean()
+  readonly isNoshow: boolean;
 }
