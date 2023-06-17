@@ -26,4 +26,5 @@ cat 09-functions-05-users.sql >> X_respaldo.sql &&
 cat 09-functions-05-users.sql >> Y_respaldo_test.sql &&
 cat 10-triggers.sql >> X_respaldo.sql &&
 cat 10-triggers.sql >> Y_respaldo_test.sql &&
+cat 11-seed.sql >> Y_respaldo_test.sql &&
 nano Y_respaldo_test.sql

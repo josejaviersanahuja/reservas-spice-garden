@@ -1,4 +1,5 @@
 
+TRUNCATE agenda RESTART IDENTITY CASCADE;
 INSERT INTO agenda (fecha, restaurant_theme_id) VALUES 
 ('2023-07-01', 1),
 ('2023-07-02', 2),

@@ -1,3 +1,30 @@
+CREATE OR REPLACE PROCEDURE seed()
+LANGUAGE SQL
+AS $$
+  
+TRUNCATE agenda RESTART IDENTITY CASCADE;
+INSERT INTO agenda (fecha, restaurant_theme_id) VALUES 
+('2023-07-01', 1),
+('2023-07-02', 2),
+('2023-07-03', 1),
+('2023-07-04', 3),
+('2023-07-05', 1),
+('2023-07-08', 3),
+('2023-07-09', 1),
+('2023-07-10', 2),
+('2023-07-13', 1),
+('2023-07-14', 2),
+('2023-07-15', 1),
+('2023-07-16', 3),
+('2023-07-17', 1),
+('2023-07-18', 2),
+('2023-07-19', 1),
+('2023-07-20', 3),
+('2023-07-22', 2),
+('2023-07-23', 1),
+('2023-07-26', 2),
+('2023-07-27', 1);
+
 
 TRUNCATE reservations RESTART IDENTITY;
 INSERT INTO reservations (fecha, hora, res_number, res_name, room, meal_plan, pax_number, cost, observations)
@@ -264,3 +291,5 @@ INSERT INTO reservations (fecha, hora, res_number, res_name, room, is_bonus, bon
 VALUES
   ('2023-07-26', '19:00', 1, 'JJ', '212', 'true', 2, 'AI', 2, 0, 'Primera reserva con bonus'),
   ('2023-07-27', '19:00', 1, 'JJ', '212', 'true', 2, 'AI', 2, 0, 'Segunda reserva con bonus');
+
+$$;
