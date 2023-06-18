@@ -1,3 +1,12 @@
+export interface PostgresCrudService<T> {
+  isError: boolean;
+  message: string;
+  errorCode?: string;
+  stack?: string;
+  rowsAffected?: number;
+  result?: T;
+}
+
 export enum TIME_OPTIONS {
   '19:00',
   '19:15',
@@ -195,13 +204,4 @@ export enum MEAL_PLAN {
   'HB',
   'FB',
   'AI',
-}
-
-export interface PostgresCrudService<T> {
-  isError: boolean;
-  message: string;
-  errorCode?: string;
-  stack?: string;
-  rowsAffected?: number;
-  result?: T;
 }

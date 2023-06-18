@@ -11,7 +11,7 @@ import {
 } from './reservations.schema';
 import { Client } from 'pg';
 import Pool from 'pg-pool';
-import { PostgresCrudService } from '../app.schema';
+import { PostgresCrudService } from '../../app.schema';
 
 @Injectable()
 export class ReservationsService {
@@ -65,7 +65,18 @@ export class ReservationsService {
     } = dto;
     const { rows } = await this.pg.query(
       `SELECT insert_reservation(
-        '${fecha}','${hora}',${resNumber},'${resName}','${room}',${isBonus}, '${bonusQty}', '${mealPlan}', '${paxNumber}', '${cost}', '${observations}', ${isNoshow}
+        '${fecha}',
+        '${hora}',
+        ${resNumber},
+        '${resName}',
+        '${room}',
+        ${isBonus},
+        '${bonusQty}',
+        '${mealPlan}',
+        '${paxNumber}',
+        '${cost}',
+        '${observations}',
+        ${isNoshow}
       ) as result`,
     );
     const response: PostgresCrudService<Reservation> = rows[0].result;

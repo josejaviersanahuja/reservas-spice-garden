@@ -1,16 +1,24 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { ValidateStringDatePipe } from '../../app.pipes';
+import { AgendaService } from './agenda.service';
+import { AgendaPostDTO } from './agenda.schema';
 
 @Controller('agenda')
 export class AgendaController {
-  // constructor() {}
+  constructor(private agendaService: AgendaService) {}
 
-  @Get()
-  getAgendas() {
+  @Get() // @TODO service getAgendas con limit offset y fechas de acuerdo a los meses no se
+  async getAgendas() {
     return 'endpoint agenda';
   }
 
   @Get('/:fecha')
-  getAgendaByDate(@Param('fecha') fecha: string) {
-    return `endpoint agenda con fecha ${fecha}`;
+  async getAgendaByDate(@Param('fecha', ValidateStringDatePipe) fecha: string) {
+    return await this.agendaService.getAgendaInfo(fecha);
+  }
+
+  @Post()
+  async postAgenda(@Body() dto: AgendaPostDTO) {
+    return await this.agendaService.createAgenda(dto);
   }
 }

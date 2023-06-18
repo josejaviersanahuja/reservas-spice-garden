@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { ReservationPostDTO } from './reservations.schema';
-import { ValidateStringDatePipe } from './reservations.pipes';
+import { ValidateStringDatePipe } from '../../app.pipes';
 
 @Controller('reservations')
 export class ReservationsController {

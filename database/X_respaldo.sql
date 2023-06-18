@@ -372,8 +372,8 @@ BEGIN
     SELECT
         json_build_object(
             'fecha', a.fecha,
-            'theme_name', rt.theme_name,
-            'image_url', rt.image_url,
+            'themeName', rt.theme_name,
+            'imageUrl', rt.image_url,
             '19:00', a.t1900,
             '19:15', a.t1915,
             '19:30', a.t1930,
@@ -431,8 +431,8 @@ BEGIN
     SELECT
         json_build_object(
             'fecha', a.fecha,
-            'theme_name', rt.theme_name,
-            'image_url', rt.image_url,
+            'themeName', rt.theme_name,
+            'imageUrl', rt.image_url,
             '19:00', a.t1900,
             '19:15', a.t1915,
             '19:30', a.t1930,
@@ -515,8 +515,8 @@ BEGIN
         SELECT
             json_build_object(
                 'fecha', a.fecha,
-                'theme_name', rt.theme_name,
-                'image_url', rt.image_url,
+                'themeName', rt.theme_name,
+                'imageUrl', rt.image_url,
                 '19:00', a.t1900,
                 '19:15', a.t1915,
                 '19:30', a.t1930,

@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import { Client } from 'pg';
+import { PureAgenda } from 'src/components/agenda/agenda.schema';
+import { PostgresCrudService } from 'src/app.schema';
 
 const pg = new Client({
   user: process.env.DB_USER,
@@ -11,31 +13,11 @@ const pg = new Client({
 
 pg.connect().then(() => {
   console.log('conectados');
-  pg.query(
-    `INSERT INTO reservations (fecha, hora, res_number, res_name, room, meal_plan, pax_number, cost, observations)
-      VALUES
-        ('2023-07-27', '21:00', 001, 'Juan Perez', 'P01', 'SC', 2, 50.00, 'Sin observaciones')`,
-  ).then((result) => {
-    console.log(result);
+  pg.query(`SELECT get_agenda_info('2023-07-27') as result`).then((result) => {
+    const res: PostgresCrudService<PureAgenda> = result.rows[0].result;
+    console.log(res);
     pg.end().then(() => {
       console.log('desconectado');
     });
   });
 });
-
-/*
-SELECT insert_reservation(
-        '2023-07-27',
-        '19:00',
-        1,
-        'John Doe',
-        '024',
-        FALSE,
-        0,
-        'HB',
-        2,
-        50.00,
-        'No special instructions',
-        FALSE
-      ) AS new_reservation
-*/
