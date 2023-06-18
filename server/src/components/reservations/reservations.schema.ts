@@ -1,6 +1,5 @@
 import {
   IsBoolean,
-  IsDate,
   IsDateString,
   IsEnum,
   IsInt,
@@ -17,7 +16,7 @@ export class Reservation {
   @Min(1)
   @IsPositive()
   readonly id: number;
-  @IsDate()
+  @IsDateString()
   readonly fecha: Date;
   @IsEnum(TIME_OPTIONS)
   readonly hora: TIME_OPTIONS;
@@ -46,9 +45,9 @@ export class Reservation {
   readonly observations: string;
   @IsBoolean()
   readonly isNoshow: boolean;
-  @IsDate()
+  @IsDateString()
   readonly createdAt: Date;
-  @IsDate()
+  @IsDateString()
   readonly updatedAt: Date;
   @IsBoolean()
   readonly isDeleted: boolean;
@@ -84,4 +83,14 @@ export class ReservationPostDTO {
   readonly observations: string;
   @IsBoolean()
   readonly isNoshow: boolean;
+}
+
+export class AggregatedReservations {
+  @IsDateString()
+  fecha: Date;
+  standard_reservations: Reservation[] | null;
+  no_show_reservations: Reservation[] | null;
+  cancelled_reservations: Reservation[] | null;
+  @IsString()
+  theme_name: string;
 }

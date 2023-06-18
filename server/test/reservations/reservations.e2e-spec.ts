@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../../src/app.module';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
@@ -55,7 +55,7 @@ describe('ReservationsController (e2e)', () => {
   describe('/reservations (POST)', () => {
     it('should create a new reservation', () => {
       const reservationData = {
-        fecha: '2023-06-15',
+        fecha: '2023-08-15',
         hora: '19:30',
         resNumber: 1,
         resName: 'John Doe',

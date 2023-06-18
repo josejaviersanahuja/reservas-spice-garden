@@ -4,7 +4,11 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Reservation, ReservationPostDTO } from './reservations.schema';
+import {
+  AggregatedReservations,
+  Reservation,
+  ReservationPostDTO,
+} from './reservations.schema';
 import { Client } from 'pg';
 import Pool from 'pg-pool';
 import { PostgresCrudService } from '../app.schema';
@@ -32,7 +36,7 @@ export class ReservationsService {
 
   async getReservationsByDate(date: string): Promise<{
     numAgendas: number;
-    data: Reservation[];
+    data: AggregatedReservations[];
   }> {
     const { rowCount, rows } = await this.pg.query(
       `SELECT * FROM get_reservations_between_dates('${date}')`,
