@@ -1,7 +1,11 @@
 import 'dotenv/config';
 import { Client } from 'pg';
 import { PureAgenda } from 'src/components/agenda/agenda.schema';
-import { PostgresCrudService } from 'src/app.schema';
+import { PostgresCrudService, TIME_OPTIONS } from './src/app.schema';
+
+const all = Object.values(TIME_OPTIONS);
+
+console.log(all);
 
 const pg = new Client({
   user: process.env.DB_USER,

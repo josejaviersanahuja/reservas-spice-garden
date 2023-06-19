@@ -7,19 +7,27 @@ export interface PostgresCrudService<T> {
   result?: T;
 }
 
+export enum MEAL_PLAN {
+  SC = 'SC',
+  BB = 'BB',
+  HB = 'HB',
+  FB = 'FB',
+  AI = 'AI',
+}
+
 export enum TIME_OPTIONS {
-  '19:00',
-  '19:15',
-  '19:30',
-  '19:45',
-  '20:00',
-  '20:15',
-  '20:30',
-  '20:45',
-  '21:00',
-  '21:15',
-  '21:30',
-  '21:45',
+  t1900 = '19:00',
+  t1915 = '19:15',
+  t1930 = '19:30',
+  t1945 = '19:45',
+  t2000 = '20:00',
+  t2015 = '20:15',
+  t2030 = '20:30',
+  t2045 = '20:45',
+  t2100 = '21:00',
+  t2115 = '21:15',
+  t2130 = '21:30',
+  t2145 = '21:45',
 }
 
 export type ROOM_OPTIONS =
@@ -197,11 +205,3 @@ export type ROOM_OPTIONS =
   | '315'
   | '316'
   | 'S/N';
-
-export enum MEAL_PLAN {
-  'SC',
-  'BB',
-  'HB',
-  'FB',
-  'AI',
-}

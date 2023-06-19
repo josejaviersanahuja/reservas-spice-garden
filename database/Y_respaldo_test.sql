@@ -709,7 +709,11 @@ DECLARE
 BEGIN
     -- Verificar si la fecha es anterior al CURRENT_DATE
     IF _fecha < CURRENT_DATE THEN
-        RAISE EXCEPTION 'No se puede crear una agenda pasada';
+        RETURN json_build_object(
+            'isError', TRUE,
+            'message', 'Bad Request 400 Cant create agenda in the past',
+            'errorCode', 'P0001'
+        );
     END IF;
 
     -- Insertar el nuevo registro en la tabla agenda

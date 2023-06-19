@@ -49,7 +49,7 @@ describe('Agenda Controller (e2e)', () => {
 
   describe('/agenda/:fecha (GET) Bad Request', () => {
     it('should return statusCode 400 for a wrong entry', () => {
-      const fecha = '2023-01';
+      const fecha = '2023-1-12';
 
       return request(app.getHttpServer())
         .get(`/agenda/${fecha}`)

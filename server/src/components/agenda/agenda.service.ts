@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Agenda, AgendaPostDTO, PureAgenda } from './agenda.schema';
 import { Client } from 'pg';
 import Pool from 'pg-pool';
@@ -28,9 +33,14 @@ export class AgendaService {
       `SELECT create_agenda('${dto.fecha}', ${dto.restaurant_theme_id}) as result`,
     );
     const res: PostgresCrudService<PureAgenda> = rows[0].result;
+    console.log(res);
+
     if (res.isError) {
       if (!res.message) {
         throw new Error(res.stack);
+      }
+      if (res.errorCode === 'P0001') {
+        throw new BadRequestException(res.message);
       }
       throw new Error(res.message + ' ' + res.errorCode);
     }

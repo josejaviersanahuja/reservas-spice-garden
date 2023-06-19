@@ -3,6 +3,8 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { Client } from 'pg';
+import { ReservationPostDTO } from 'src/components/reservations/reservations.schema';
+import { MEAL_PLAN, TIME_OPTIONS } from '../../src/app.schema';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
@@ -34,15 +36,15 @@ describe('ReservationsController (e2e)', () => {
   describe('/reservations (POST)', () => {
     it('should return 422 when inserting a reservation when there is no agenda ', () => {
       const currentDate = new Date();
-      const reservationData = {
+      const reservationData: ReservationPostDTO = {
         fecha: currentDate.toISOString(),
-        hora: '19:30',
+        hora: TIME_OPTIONS.t1900,
         resNumber: 1,
         resName: 'John Doe',
         room: '101',
         isBonus: false,
         bonusQty: 0,
-        mealPlan: 'FB',
+        mealPlan: MEAL_PLAN.FB,
         paxNumber: 2,
         cost: 100,
         observations: '',
@@ -62,15 +64,15 @@ describe('ReservationsController (e2e)', () => {
     });
 
     it('should return 400 when inserting a reservation on the past', () => {
-      const reservationData = {
+      const reservationData: ReservationPostDTO = {
         fecha: '1900-01-01',
-        hora: '19:30',
+        hora: TIME_OPTIONS.t1900,
         resNumber: 1,
         resName: 'John Doe',
         room: '101',
         isBonus: false,
         bonusQty: 0,
-        mealPlan: 'FB',
+        mealPlan: MEAL_PLAN.FB,
         paxNumber: 2,
         cost: 100,
         observations: '',
