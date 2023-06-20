@@ -5,8 +5,8 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import {
+  AggReservation,
   AggregatedReservations,
-  Reservation,
   ReservationPostDTO,
 } from './reservations.schema';
 import { Client } from 'pg';
@@ -22,7 +22,7 @@ export class ReservationsService {
     dateF: string,
   ): Promise<{
     numAgendas: number;
-    data: Reservation[];
+    data: AggregatedReservations[];
   }> {
     const { rowCount, rows } = await this.pg.query(
       `SELECT * FROM get_reservations_between_dates('${dateI}','${dateF}')`,
@@ -48,7 +48,7 @@ export class ReservationsService {
     };
   }
 
-  async createReservation(dto: ReservationPostDTO): Promise<Reservation> {
+  async createReservation(dto: ReservationPostDTO): Promise<AggReservation> {
     const {
       fecha,
       hora,
@@ -79,7 +79,7 @@ export class ReservationsService {
         ${isNoshow}
       ) as result`,
     );
-    const response: PostgresCrudService<Reservation> = rows[0].result;
+    const response: PostgresCrudService<AggReservation> = rows[0].result;
 
     if (response.isError) {
       throw new UnprocessableEntityException(response.message);

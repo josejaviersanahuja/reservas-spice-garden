@@ -2,7 +2,9 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ValidateStringDatePipe } from '../../app.pipes';
 import { AgendaService } from './agenda.service';
 import { AgendaPostDTO } from './agenda.schema';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('agenda')
 @Controller('agenda')
 export class AgendaController {
   constructor(private agendaService: AgendaService) {}

@@ -11,6 +11,7 @@ import {
   Min,
 } from 'class-validator';
 import { MEAL_PLAN, ROOM_OPTIONS, TIME_OPTIONS } from '../../app.schema';
+import { ApiProperty } from '@nestjs/swagger';
 
 // helper class to refer differences between the two schemas
 // when a reservation comes alone from db, it comes with Date type
@@ -34,7 +35,8 @@ abstract class ReservationBase<T> {
   readonly isDeleted: boolean;
 }
 
-export class Reservation extends ReservationBase<Date> {
+// no se está usando ente schema
+/* export class Reservation extends ReservationBase<Date> {
   @IsInt()
   @Min(1)
   @IsPositive()
@@ -75,80 +77,231 @@ export class Reservation extends ReservationBase<Date> {
   @IsBoolean()
   readonly isDeleted: boolean;
 }
-
+*/
 // when a reservation comes from a http payload, it comes with string type
 export class ReservationPostDTO {
+  @ApiProperty({
+    description: 'Date of the reservation and cant be in the past',
+    example: '2021-01-01',
+    type: String,
+    format: 'yyyy-mm-dd',
+  })
   @IsDateString()
   readonly fecha: string;
+  @ApiProperty({
+    description: 'Time of the reservation',
+    example: '19:00',
+    enum: TIME_OPTIONS,
+  })
   @IsEnum(TIME_OPTIONS)
   readonly hora: TIME_OPTIONS;
+  @ApiProperty({
+    description: 'Reservation number',
+    example: 65345,
+    type: Number,
+    minimum: 1,
+  })
   @IsInt()
   @Min(1)
   @IsPositive()
   readonly resNumber: number;
+  @ApiProperty({
+    description: 'Reservation name',
+    example: 'John Doe',
+    type: String,
+  })
   @IsString()
   @IsNotEmpty()
   readonly resName: string;
-  @IsString()
+  @ApiProperty({
+    description: 'Room Number',
+    example: 'P22',
+    enum: ROOM_OPTIONS,
+  })
+  @IsEnum(ROOM_OPTIONS)
   readonly room: ROOM_OPTIONS;
+  @ApiProperty({
+    description: 'Is this a reservation included in AI?',
+    example: false,
+    type: Boolean,
+  })
   @IsBoolean()
   readonly isBonus: boolean;
+  @ApiProperty({
+    description: 'How many dinners has included as part of the AI?',
+    example: 2,
+    type: Number,
+    minimum: 0,
+  })
   @IsInt()
-  @Min(0)
+  @Min(1)
   readonly bonusQty: number;
+  @ApiProperty({
+    description: 'Meal Plan',
+    example: 'BB',
+    enum: MEAL_PLAN,
+  })
   @IsEnum(MEAL_PLAN)
   readonly mealPlan: MEAL_PLAN;
+  @ApiProperty({
+    description: 'How many people are included in this reservation?',
+    example: 2,
+    type: Number,
+    minimum: 1,
+  })
   @IsInt()
   @Min(1)
   readonly paxNumber: number;
+  @ApiProperty({
+    description: 'Cost of the reservation',
+    example: 8,
+    type: Number,
+  })
   @IsNumber()
   readonly cost: number;
+  @ApiProperty({
+    description: 'Observations',
+    example: 'This is a test',
+    type: String,
+  })
   @IsString()
   readonly observations: string;
+  @ApiProperty({
+    description: 'Is this a no show reservation?',
+    example: false,
+    type: Boolean,
+  })
   @IsBoolean()
   readonly isNoshow: boolean;
 }
 
-class AggReservation extends ReservationBase<string> {
+export class AggReservation extends ReservationBase<string> {
+  @ApiProperty({
+    description: 'Reservation ID',
+    example: 1,
+    type: Number,
+    minimum: 1,
+  })
   @IsInt()
   @Min(1)
   @IsPositive()
   readonly id: number;
+  @ApiProperty({
+    description: 'Date of the reservation and cant be in the past',
+    example: '2021-01-01T00:00:00.000Z',
+    type: String,
+    format: 'yyyy-mm-ddThh:mm:ss.sssZ',
+  })
   @IsDateString()
   readonly fecha: string;
+  @ApiProperty({
+    description: 'Time of the reservation',
+    example: '19:00',
+    enum: TIME_OPTIONS,
+  })
   @IsEnum(TIME_OPTIONS)
   readonly hora: TIME_OPTIONS;
+  @ApiProperty({
+    description: 'Reservation number',
+    example: 65345,
+    type: Number,
+    minimum: 1,
+  })
   @IsInt()
   @Min(1)
   @IsPositive()
-  readonly resNumber: number;
+  readonly res_number: number;
+  @ApiProperty({
+    description: 'Reservation name',
+    example: 'John Doe',
+    type: String,
+  })
   @IsString()
   @IsNotEmpty()
-  readonly resName: string;
-  @IsString()
+  readonly res_name: string;
+  @ApiProperty({
+    description: 'Room Number',
+    example: 'P22',
+    enum: ROOM_OPTIONS,
+  })
+  @IsEnum(ROOM_OPTIONS)
   readonly room: ROOM_OPTIONS;
+  @ApiProperty({
+    description: 'Is this a reservation included in AI?',
+    example: false,
+    type: Boolean,
+  })
   @IsBoolean()
-  readonly isBonus: boolean;
+  readonly is_bonus: boolean;
+  @ApiProperty({
+    description: 'How many dinners has included as part of the AI?',
+    example: 2,
+    type: Number,
+    minimum: 0,
+  })
   @IsInt()
   @Min(0)
-  readonly bonusQty: number;
+  readonly bonus_qty: number;
+  @ApiProperty({
+    description: 'Meal Plan',
+    example: 'BB',
+    enum: MEAL_PLAN,
+  })
   @IsEnum(MEAL_PLAN)
-  readonly mealPlan: MEAL_PLAN;
+  readonly meal_plan: MEAL_PLAN;
+  @ApiProperty({
+    description: 'How many people are included in this reservation?',
+    example: 2,
+    type: Number,
+    minimum: 1,
+  })
   @IsInt()
   @Min(1)
-  readonly paxNumber: number;
+  readonly pax_number: number;
+  @ApiProperty({
+    description: 'Cost of the reservation',
+    example: 8,
+    type: Number,
+  })
   @IsNumber()
   readonly cost: number;
+  @ApiProperty({
+    description: 'Observations',
+    example: 'This is a test',
+    type: String,
+  })
   @IsString()
   readonly observations: string;
+  @ApiProperty({
+    description: 'Is this a no show reservation?',
+    example: false,
+    type: Boolean,
+  })
   @IsBoolean()
-  readonly isNoshow: boolean;
+  readonly is_noshow: boolean;
+  @ApiProperty({
+    description: 'Date of creation',
+    example: '2021-01-01T00:00:00.000Z',
+    type: String,
+    format: 'yyyy-mm-ddThh:mm:ss.sssZ',
+  })
   @IsDateString()
-  readonly createdAt: string;
+  readonly created_at: string;
+  @ApiProperty({
+    description: 'Date of last update',
+    example: '2021-01-01T00:00:00.000Z',
+    type: String,
+    format: 'yyyy-mm-ddThh:mm:ss.sssZ',
+  })
   @IsDateString()
-  readonly updatedAt: string;
+  readonly updated_at: string;
+  @ApiProperty({
+    description: 'Is this a cancelled reservation?',
+    example: false,
+    type: Boolean,
+  })
   @IsBoolean()
-  readonly isDeleted: boolean;
+  readonly is_deleted: boolean;
 }
 export class AggregatedReservations {
   @IsDate()

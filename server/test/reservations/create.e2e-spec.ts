@@ -1,10 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { Client } from 'pg';
-import { ReservationPostDTO } from 'src/components/reservations/reservations.schema';
+import {
+  AggReservation,
+  ReservationPostDTO,
+} from 'src/components/reservations/reservations.schema';
 import { MEAL_PLAN, TIME_OPTIONS } from '../../src/app.schema';
+import { AgendaPostDTO } from 'src/components/agenda/agenda.schema';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
@@ -25,7 +29,7 @@ describe('ReservationsController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
 
@@ -33,9 +37,12 @@ describe('ReservationsController (e2e)', () => {
     await app.close();
   });
 
+  // This test will add an attempt to insert a reservation on a non existing agenda
+  // It will increment the autoincremental id of the table reservations
+  // id 225 will be lost forever
   describe('/reservations (POST)', () => {
     it('should return 422 when inserting a reservation when there is no agenda ', () => {
-      const currentDate = new Date();
+      const currentDate = new Date('2023-07-30');
       const reservationData: ReservationPostDTO = {
         fecha: currentDate.toISOString(),
         hora: TIME_OPTIONS.t1900,
@@ -91,9 +98,13 @@ describe('ReservationsController (e2e)', () => {
         });
     });
 
-    /*it('should return 201 when inserting a valid reservation on a valid agenda', () => {
+    // considering id 225 is lost forever, the id for this one will be 226
+    it('should return 201 when inserting a valid reservation on a valid agenda', async () => {
       const currentDate = new Date();
-
+      const agenda: AgendaPostDTO = {
+        fecha: currentDate.toISOString(),
+        restaurantThemeId: 1,
+      };
       const reservationData = {
         fecha: currentDate.toISOString(),
         hora: '19:30',
@@ -108,16 +119,16 @@ describe('ReservationsController (e2e)', () => {
         observations: '',
         isNoshow: false,
       };
+      await request(app.getHttpServer()).post('/agenda').send(agenda);
+
       return request(app.getHttpServer())
         .post('/reservations')
         .send(reservationData)
-        .expect(400)
+        .expect(201)
         .expect((response) => {
-          const createdReservation = response.body;
-          expect(createdReservation.message).toEqual(
-            'Bad request: No record inserted - Date is in the past',
-          );
+          const createdReservation: AggReservation = response.body;
+          expect(createdReservation.id).toEqual(226);
         });
-    });*/
+    });
   });
 });

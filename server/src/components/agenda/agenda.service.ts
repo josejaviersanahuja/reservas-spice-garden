@@ -30,10 +30,9 @@ export class AgendaService {
 
   async createAgenda(dto: AgendaPostDTO): Promise<PureAgenda> {
     const { rows } = await this.pg.query(
-      `SELECT create_agenda('${dto.fecha}', ${dto.restaurant_theme_id}) as result`,
+      `SELECT create_agenda('${dto.fecha}', ${dto.restaurantThemeId}) as result`,
     );
     const res: PostgresCrudService<PureAgenda> = rows[0].result;
-    console.log(res);
 
     if (res.isError) {
       if (!res.message) {

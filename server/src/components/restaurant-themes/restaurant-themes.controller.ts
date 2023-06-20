@@ -1,5 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('restaurant-themes')
 @Controller('restaurant-themes')
 export class RestaurantThemesController {
   // constructor() {}

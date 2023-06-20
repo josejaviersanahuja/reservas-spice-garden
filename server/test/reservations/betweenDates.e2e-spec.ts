@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { AggregatedReservations } from 'src/components/reservations/reservations.schema';
@@ -13,6 +13,7 @@ describe('ReservationsController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
 
@@ -30,7 +31,7 @@ describe('ReservationsController (e2e)', () => {
         .expect(200)
         .expect((response) => {
           const numAgendas = response.body.numAgendas;
-          const reservations = response.body.data;
+          const reservations: AggregatedReservations[] = response.body.data;
           expect(Array.isArray(reservations)).toBe(true);
           expect(numAgendas).toBe(0);
           expect(reservations.length).toBe(0);
