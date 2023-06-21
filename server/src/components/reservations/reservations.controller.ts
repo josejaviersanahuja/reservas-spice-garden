@@ -8,7 +8,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { MEAL_PLAN, ROOM_OPTIONS, TIME_OPTIONS } from 'src/app.schema';
+import { MEAL_PLAN, ROOM_OPTIONS, TIME_OPTIONS } from '../../../src/app.schema';
 
 @ApiTags('reservations')
 @Controller('reservations')

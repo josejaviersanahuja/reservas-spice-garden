@@ -4,7 +4,7 @@ CREATE TABLE restaurant_themes (
   id SERIAL PRIMARY KEY,
   theme_name VARCHAR(255) NOT NULL,
   description TEXT,
-  image_url VARCHAR(255),
+  image_url VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   is_deleted BOOLEAN DEFAULT FALSE

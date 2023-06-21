@@ -1,8 +1,16 @@
 CREATE OR REPLACE PROCEDURE seed()
 LANGUAGE SQL
 AS $$
-  
+
+TRUNCATE restaurant_themes RESTART IDENTITY CASCADE;
 TRUNCATE agenda RESTART IDENTITY CASCADE;
+TRUNCATE reservations RESTART IDENTITY;
+
+INSERT INTO restaurant_themes (theme_name, description, image_url) VALUES
+('Restaurante Mexicano', 'Restaurante de comida mexicana', ''),
+('Restaurante Italiano', 'Restaurante de comida italiana', ''),
+('Restaurante Hindú', 'Restaurante de comida hindú', '');
+
 INSERT INTO agenda (fecha, restaurant_theme_id) VALUES 
 ('2023-07-01', 1),
 ('2023-07-02', 2),
@@ -25,8 +33,6 @@ INSERT INTO agenda (fecha, restaurant_theme_id) VALUES
 ('2023-07-26', 2),
 ('2023-07-27', 1);
 
-
-TRUNCATE reservations RESTART IDENTITY;
 INSERT INTO reservations (fecha, hora, res_number, res_name, room, meal_plan, pax_number, cost, observations)
 VALUES
   ('2023-07-01', '19:00', 001, 'Juan Perez', 'P01', 'SC', 2, 50.00, 'Sin observaciones'),

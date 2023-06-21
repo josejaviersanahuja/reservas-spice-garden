@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
-import { Client } from 'pg';
+import { pg } from '../pg';
 import {
   Agenda,
   AgendaPostDTO,
@@ -12,16 +12,7 @@ describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const pg = new Client({
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
-    });
-    await pg.connect();
     await pg.query('CALL seed()');
-    await pg.end();
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -32,6 +23,7 @@ describe('ReservationsController (e2e)', () => {
   });
 
   afterAll(async () => {
+    await pg.query('CALL seed()');
     await app.close();
   });
 

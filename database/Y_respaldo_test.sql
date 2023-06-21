@@ -20,7 +20,7 @@ CREATE TABLE restaurant_themes (
   id SERIAL PRIMARY KEY,
   theme_name VARCHAR(255) NOT NULL,
   description TEXT,
-  image_url VARCHAR(255),
+  image_url VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   is_deleted BOOLEAN DEFAULT FALSE
@@ -880,7 +880,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION create_restaurant_theme(
   _theme_name VARCHAR(255),
   _description TEXT,
-  _image_url VARCHAR(255) DEFAULT ''
+  _image_url VARCHAR(255) DEFAULT NULL
 )
 RETURNS JSON AS $$
 DECLARE
@@ -895,7 +895,15 @@ BEGIN
   RETURN json_build_object(
     'isError', FALSE,
     'message', 'Restaurant theme created successfully',
-    'result', row_to_json(res)
+    'result', json_build_object(
+      'id', res.id,
+      'themeName', res.theme_name,
+      'description', res.description,
+      'imageUrl', res.image_url,
+      'createdAt', res.created_at,
+      'updatedAt', res.updated_at,
+      'isDeleted', res.is_deleted
+    )
   );
 EXCEPTION
   WHEN OTHERS THEN
@@ -942,7 +950,15 @@ BEGIN
     RETURN json_build_object(
       'isError', FALSE,
       'message', 'Restaurant theme updated successfully',
-      'result', row_to_json(result),
+      'result', json_build_object(
+        'id', result.id,
+        'themeName', result.theme_name,
+        'description', result.description,
+        'imageUrl', result.image_url,
+        'createdAt', result.created_at,
+        'updatedAt', result.updated_at,
+        'isDeleted', result.is_deleted
+      ),
       'rowsAffected', 1
     );
   END IF;
@@ -1484,8 +1500,16 @@ EXECUTE FUNCTION update_updated_at();
 CREATE OR REPLACE PROCEDURE seed()
 LANGUAGE SQL
 AS $$
-  
+
+TRUNCATE restaurant_themes RESTART IDENTITY CASCADE;
 TRUNCATE agenda RESTART IDENTITY CASCADE;
+TRUNCATE reservations RESTART IDENTITY;
+
+INSERT INTO restaurant_themes (theme_name, description, image_url) VALUES
+('Restaurante Mexicano', 'Restaurante de comida mexicana', ''),
+('Restaurante Italiano', 'Restaurante de comida italiana', ''),
+('Restaurante Hindú', 'Restaurante de comida hindú', '');
+
 INSERT INTO agenda (fecha, restaurant_theme_id) VALUES 
 ('2023-07-01', 1),
 ('2023-07-02', 2),
@@ -1508,8 +1532,6 @@ INSERT INTO agenda (fecha, restaurant_theme_id) VALUES
 ('2023-07-26', 2),
 ('2023-07-27', 1);
 
-
-TRUNCATE reservations RESTART IDENTITY;
 INSERT INTO reservations (fecha, hora, res_number, res_name, room, meal_plan, pax_number, cost, observations)
 VALUES
   ('2023-07-01', '19:00', 001, 'Juan Perez', 'P01', 'SC', 2, 50.00, 'Sin observaciones'),

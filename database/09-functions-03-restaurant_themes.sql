@@ -2,7 +2,7 @@
 CREATE OR REPLACE FUNCTION create_restaurant_theme(
   _theme_name VARCHAR(255),
   _description TEXT,
-  _image_url VARCHAR(255) DEFAULT ''
+  _image_url VARCHAR(255) DEFAULT NULL
 )
 RETURNS JSON AS $$
 DECLARE
@@ -17,7 +17,15 @@ BEGIN
   RETURN json_build_object(
     'isError', FALSE,
     'message', 'Restaurant theme created successfully',
-    'result', row_to_json(res)
+    'result', json_build_object(
+      'id', res.id,
+      'themeName', res.theme_name,
+      'description', res.description,
+      'imageUrl', res.image_url,
+      'createdAt', res.created_at,
+      'updatedAt', res.updated_at,
+      'isDeleted', res.is_deleted
+    )
   );
 EXCEPTION
   WHEN OTHERS THEN
@@ -64,7 +72,15 @@ BEGIN
     RETURN json_build_object(
       'isError', FALSE,
       'message', 'Restaurant theme updated successfully',
-      'result', row_to_json(result),
+      'result', json_build_object(
+        'id', result.id,
+        'themeName', result.theme_name,
+        'description', result.description,
+        'imageUrl', result.image_url,
+        'createdAt', result.created_at,
+        'updatedAt', result.updated_at,
+        'isDeleted', result.is_deleted
+      ),
       'rowsAffected', 1
     );
   END IF;

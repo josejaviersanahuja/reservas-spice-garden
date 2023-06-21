@@ -134,7 +134,7 @@ export class ReservationPostDTO {
     minimum: 0,
   })
   @IsInt()
-  @Min(1)
+  @Min(0)
   readonly bonusQty: number;
   @ApiProperty({
     description: 'Meal Plan',

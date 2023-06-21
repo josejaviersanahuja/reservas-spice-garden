@@ -2,10 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
-import { Agenda } from '../../src/components/agenda/agenda.schema';
+import { PureRestaurantTheme } from '../../src/components/restaurant-themes/restaurant-themes.schema';
 import { pg } from '../pg';
 
-describe('Agenda Controller (e2e)', () => {
+describe('Restaurant Themes Controller (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -23,39 +23,41 @@ describe('Agenda Controller (e2e)', () => {
     await app.close();
   });
 
-  describe('/agenda/:fecha (GET)', () => {
-    it('should return statusCode 404 when there is no agenda on that date ', () => {
-      const fecha = '2023-06-15';
+  describe('/restaurant-themes/:id (GET)', () => {
+    it('should return an specific Restaurant Theme by id', () => {
+      const id = 1;
 
       return request(app.getHttpServer())
-        .get(`/agenda/${fecha}`)
-        .expect(404)
-        .expect((response) => {
-          const reservation = response.body;
-          expect(reservation.statusCode).toBe(404);
-        });
-    });
-    it('should return an Agenda for a specific date', () => {
-      const fecha = '2023-07-01';
-
-      return request(app.getHttpServer())
-        .get(`/agenda/${fecha}`)
+        .get(`/restaurant-themes/${id}`)
         .expect(200)
         .expect((response) => {
-          const agenda: Agenda = response.body;
-          expect(typeof agenda.fecha).toBe('string');
-          expect(agenda.fecha.substring(0, 10)).toBe('2023-07-01');
-          expect(agenda.themeName).toBe('Restaurante Mexicano');
+          const restaurantTheme: PureRestaurantTheme = response.body;
+          expect(restaurantTheme.id).toBe(id);
+          expect(restaurantTheme.theme_name).toBe('Restaurante Mexicano');
+          expect(restaurantTheme.description).toBe(
+            'Restaurante de comida mexicana',
+          );
+        });
+    });
+    it('should return statusCode 404 when there is no Restaurant Theme with that id', () => {
+      const id = 999;
+
+      return request(app.getHttpServer())
+        .get(`/restaurant-themes/${id}`)
+        .expect(404)
+        .expect((response) => {
+          const res = response.body;
+          expect(res.statusCode).toBe(404);
         });
     });
   });
 
-  describe('/agenda/:fecha (GET) Bad Request', () => {
+  describe('/restaurant-themes/:id (GET) Bad Request', () => {
     it('should return statusCode 400 for a wrong entry', () => {
-      const fecha = '2023-1-12';
+      const id = 'abc';
 
       return request(app.getHttpServer())
-        .get(`/agenda/${fecha}`)
+        .get(`/restaurant-themes/${id}`)
         .expect(400)
         .expect((response) => {
           const res = response.body;

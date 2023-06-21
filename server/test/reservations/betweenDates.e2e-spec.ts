@@ -2,12 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
-import { AggregatedReservations } from 'src/components/reservations/reservations.schema';
+import { AggregatedReservations } from '../../src/components/reservations/reservations.schema';
+import { pg } from '../pg';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    await pg.query('CALL seed()');
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
