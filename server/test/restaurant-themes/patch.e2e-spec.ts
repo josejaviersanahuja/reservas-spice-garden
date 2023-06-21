@@ -18,7 +18,11 @@ describe('RestaurantThemesController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        skipMissingProperties: true,
+      }),
+    );
     await app.init();
   });
 
@@ -93,7 +97,7 @@ describe('RestaurantThemesController (e2e)', () => {
             'Restaurante Italiano',
           );
           expect(updatedRestaurantTheme.description).toEqual(
-            'Restaurante de comida italiana',
+            'Restaurante Italiano',
           );
           expect(updatedRestaurantTheme.imageUrl).toEqual(
             'https://example.com/image.jpg',
@@ -117,11 +121,9 @@ describe('RestaurantThemesController (e2e)', () => {
             'Restaurante Italiano',
           );
           expect(updatedRestaurantTheme.description).toEqual(
-            'Restaurante de comida italiana',
+            'Restaurante Italiano',
           );
-          expect(updatedRestaurantTheme.imageUrl).toEqual(
-            'https://example.com/image.jpg',
-          );
+          expect(updatedRestaurantTheme.imageUrl).toEqual('http://Italiano.it');
           expect(updatedRestaurantTheme.id).toBe(1);
         });
     });

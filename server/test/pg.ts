@@ -11,7 +11,11 @@ const pgPool = new Pool({
 // quiero construir una funcion exportable que sea asincrona y ejecute lo siguiente: await pg.query('CALL seed()');
 export const pg = {
   query: async (query: string) => {
-    pgPool.connect();
-    return pgPool.query(query);
+    // await pgPool.connect();
+    await pgPool.query(query);
+    // await pgPool.end();
+  },
+  end: async () => {
+    await pgPool.end();
   },
 };
