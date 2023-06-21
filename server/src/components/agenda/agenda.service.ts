@@ -4,10 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Agenda, AgendaPostDTO, PureAgenda } from './agenda.schema';
+import { Agenda, AgendaPatchDTO, AgendaPostDTO } from './agenda.schema';
 import { Client } from 'pg';
 import Pool from 'pg-pool';
 import { PostgresCrudService } from '../../app.schema';
+import { AgendaPatchQueryBuilder } from './agenda.util';
 
 @Injectable()
 export class AgendaService {
@@ -28,11 +29,11 @@ export class AgendaService {
     return res.result;
   }
 
-  async createAgenda(dto: AgendaPostDTO): Promise<PureAgenda> {
+  async createAgenda(dto: AgendaPostDTO): Promise<Agenda> {
     const { rows } = await this.pg.query(
       `SELECT create_agenda('${dto.fecha}', ${dto.restaurantThemeId}) as result`,
     );
-    const res: PostgresCrudService<PureAgenda> = rows[0].result;
+    const res: PostgresCrudService<Agenda> = rows[0].result;
 
     if (res.isError) {
       if (!res.message) {
@@ -42,6 +43,25 @@ export class AgendaService {
         throw new BadRequestException(res.message);
       }
       throw new Error(res.message + ' ' + res.errorCode);
+    }
+    return res.result;
+  }
+
+  async updateAgenda(fecha: string, dto: AgendaPatchDTO): Promise<Agenda> {
+    const query = AgendaPatchQueryBuilder(fecha, dto);
+    const { rows } = await this.pg.query(query);
+    const res: PostgresCrudService<Agenda> = rows[0].result;
+    if (res.isError) {
+      if (res.errorCode === 'P0001') {
+        throw new BadRequestException(res.message);
+      }
+      if (!res.message) {
+        throw new Error(res.stack);
+      }
+      throw new Error(res.message + ' ' + res.errorCode);
+    }
+    if (!res.result) {
+      throw new NotFoundException('Agenda doesnt exist');
     }
     return res.result;
   }

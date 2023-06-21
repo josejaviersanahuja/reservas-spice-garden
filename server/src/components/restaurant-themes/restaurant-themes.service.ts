@@ -8,6 +8,7 @@ import {
 import { Client } from 'pg';
 import Pool from 'pg-pool';
 import { PostgresCrudService } from '../../app.schema';
+import { restaurantThenPatchQueryBuilder } from './restaurant-theme.util';
 
 @Injectable()
 export class RestaurantThemeService {
@@ -56,22 +57,7 @@ export class RestaurantThemeService {
     id: number,
     dto: RestaurantThemePutDTO,
   ): Promise<RestaurantTheme> {
-    let query = `SELECT update_restaurant_theme(${id}`;
-    if (dto.themeName) {
-      query += `,'${dto.themeName}'`;
-    } else {
-      query += `,null `;
-    }
-    if (dto.description) {
-      query += `,'${dto.description}'`;
-    } else {
-      query += `,null`;
-    }
-    if (dto.imageUrl) {
-      query += `, '${dto.imageUrl}'`;
-    }
-    query += `) as result`;
-
+    const query = restaurantThenPatchQueryBuilder(id, dto);
     const { rows } = await this.pg.query(query);
     const res: PostgresCrudService<RestaurantTheme> = rows[0].result;
 

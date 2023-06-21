@@ -1,6 +1,19 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
-import { AggReservation, ReservationPostDTO } from './reservations.schema';
+import {
+  AggReservation,
+  ReservationPatchDTO,
+  ReservationPostDTO,
+} from './reservations.schema';
 import { ValidateStringDatePipe } from '../../app.pipes';
 import {
   ApiOkResponse,
@@ -366,5 +379,13 @@ export class ReservationsController {
   @Post()
   postReservation(@Body() dto: ReservationPostDTO): Promise<AggReservation> {
     return this.reservationService.createReservation(dto);
+  }
+
+  @Patch('/:id')
+  patchReservation(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ReservationPatchDTO,
+  ): Promise<AggReservation> {
+    return this.reservationService.updateReservation(id, dto);
   }
 }

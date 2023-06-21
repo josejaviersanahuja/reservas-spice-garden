@@ -1250,6 +1250,96 @@ SELECT insert_reservation(
 */
 
 
+CREATE OR REPLACE FUNCTION update_reservation(
+  _id INTEGER,
+  _fecha DATE DEFAULT NULL,
+  _hora TIME_OPTIONS_ENUM DEFAULT NULL,
+  _res_number INTEGER DEFAULT NULL,
+  _res_name VARCHAR(100) DEFAULT NULL,
+  _room ROOM_OPTIONS_ENUM DEFAULT NULL,
+  _is_bonus BOOLEAN DEFAULT NULL,
+  _bonus_qty INTEGER DEFAULT NULL,
+  _meal_plan MEAL_PLAN_ENUM DEFAULT NULL,
+  _pax_number INTEGER DEFAULT NULL,
+  _cost NUMERIC(10,2) DEFAULT NULL,
+  _observations TEXT DEFAULT NULL,
+  _is_noshow BOOLEAN DEFAULT NULL
+) RETURNS JSON AS $$
+DECLARE
+  updated reservations;
+  response JSON;
+  stack_info TEXT;
+BEGIN
+  BEGIN
+    IF _fecha < CURRENT_DATE THEN
+      response := json_build_object(
+        'isError', FALSE,
+        'message', 'Bad request: No record inserted - Date is in the past',
+        'rowsAffected', 0
+      );
+    ELSE
+      BEGIN
+        UPDATE reservations 
+        SET
+          fecha = COALESCE(_fecha, reservations.fecha),
+          hora = COALESCE(_hora, reservations.hora),
+          res_number = COALESCE(_res_number, reservations.res_number),
+          res_name = COALESCE(_res_name, reservations.res_name),
+          room = COALESCE(_room, reservations.room),
+          is_bonus = COALESCE(_is_bonus, reservations.is_bonus),
+          bonus_qty = COALESCE(_bonus_qty, reservations.bonus_qty),
+          meal_plan = COALESCE(_meal_plan, reservations.meal_plan),
+          pax_number = COALESCE(_pax_number, reservations.pax_number),
+          cost = COALESCE(_cost, reservations.cost),
+          observations = COALESCE(_observations, reservations.observations),
+          is_noshow = COALESCE(_is_noshow, reservations.is_noshow)
+        WHERE id = _id;
+
+        IF FOUND THEN
+          SELECT * FROM reservations WHERE id = _id INTO updated;
+          response := json_build_object(
+            'isError', FALSE,
+            'result', json_build_object(
+              'id', updated.id,
+              'fecha', updated.fecha,
+              'hora', updated.hora,
+              'res_number', updated.res_number,
+              'res_name', updated.res_name,
+              'room', updated.room,
+              'is_bonus', updated.is_bonus,
+              'bonus_qty', updated.bonus_qty,
+              'meal_plan', updated.meal_plan,
+              'pax_number', updated.pax_number,
+              'cost', updated.cost,
+              'observations', updated.observations,
+              'is_noshow', updated.is_noshow,
+              'created_at', updated.created_at,
+              'updated_at', updated.updated_at,
+              'is_deleted', updated.is_deleted
+            ),
+            'rowsAffected', 1
+            );
+        ELSE
+          response := json_build_object(
+            'isError', FALSE, 'message', 'Not found: No record updated',
+            'rowsAffected', 0
+            );
+        END IF;
+      EXCEPTION
+        WHEN OTHERS THEN
+          GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+          response := json_build_object(
+            'isError', TRUE, 'message', SQLERRM, 'errorCode', SQLSTATE,
+            'stack', stack_info
+            );
+      END;
+    END IF;
+
+    RETURN response;
+  END;
+END;
+$$ LANGUAGE plpgsql;
+
 /*
 SELECT update_reservation(
 	226,

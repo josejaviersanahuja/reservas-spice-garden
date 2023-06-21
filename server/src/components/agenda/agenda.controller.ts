@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { ValidateStringDatePipe } from '../../app.pipes';
 import { AgendaService } from './agenda.service';
-import { AgendaPostDTO } from './agenda.schema';
+import { AgendaPatchDTO, AgendaPostDTO } from './agenda.schema';
 import { ApiTags } from '@nestjs/swagger';
+import { ValidateAgendaPatchDTOPipe } from './agenda.pipe';
 
 @ApiTags('agenda')
 @Controller('agenda')
@@ -22,5 +23,13 @@ export class AgendaController {
   @Post()
   async postAgenda(@Body() dto: AgendaPostDTO) {
     return await this.agendaService.createAgenda(dto);
+  }
+
+  @Patch('/:fecha')
+  async patchAgenda(
+    @Param('fecha', ValidateStringDatePipe) fecha: string,
+    @Body(ValidateAgendaPatchDTOPipe) dto: AgendaPatchDTO,
+  ) {
+    return await this.agendaService.updateAgenda(fecha, dto);
   }
 }

@@ -6,6 +6,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Min,
@@ -173,6 +174,50 @@ export class ReservationPostDTO {
   })
   @IsBoolean()
   readonly isNoshow: boolean;
+}
+
+export class ReservationPatchDTO {
+  @IsDateString()
+  @IsOptional()
+  readonly fecha?: string;
+  @IsEnum(TIME_OPTIONS)
+  @IsOptional()
+  readonly hora?: TIME_OPTIONS;
+  @IsInt()
+  @Min(1)
+  @IsPositive()
+  @IsOptional()
+  readonly resNumber?: number;
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly resName?: string;
+  @IsEnum(ROOM_OPTIONS)
+  @IsOptional()
+  readonly room?: ROOM_OPTIONS;
+  @IsBoolean()
+  @IsOptional()
+  readonly isBonus?: boolean;
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  readonly bonusQty?: number;
+  @IsEnum(MEAL_PLAN)
+  @IsOptional()
+  readonly mealPlan?: MEAL_PLAN;
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  readonly paxNumber?: number;
+  @IsNumber()
+  @IsOptional()
+  readonly cost?: number;
+  @IsString()
+  @IsOptional()
+  readonly observations?: string;
+  @IsBoolean()
+  @IsOptional()
+  readonly isNoshow?: boolean;
 }
 
 export class AggReservation extends ReservationBase<string> {

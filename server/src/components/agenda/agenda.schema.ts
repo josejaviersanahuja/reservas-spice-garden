@@ -5,6 +5,7 @@ import {
   IsDateString,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Min,
 } from 'class-validator';
@@ -122,4 +123,59 @@ export class AgendaPostDTO {
   @IsInt()
   @Min(1)
   readonly restaurantThemeId: number;
+}
+
+export class AgendaPatchDTO {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  readonly restaurantThemeId?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '19:00'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '19:15'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '19:30'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '19:45'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '20:00'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '20:15'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '20:30'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '20:45'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '21:00'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '21:15'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '21:30'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '21:45'?: number | undefined;
 }
