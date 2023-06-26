@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, BadRequestException, NotFoundException } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { ReservationsService } from '../../src/components/reservations/reservations.service';
@@ -31,17 +31,43 @@ describe('ReservationsController (e2e)', () => {
         // Provide the necessary data for updating the reservation
       };
 
+      const mockResponse: AggReservation = {} as AggReservation;
       jest
         .spyOn(reservationsService, 'updateReservation')
-        .mockImplementation(async () => ({} as AggReservation));
+        .mockResolvedValue(mockResponse);
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
         .send(reservationPatchData)
         .expect(200);
 
-      const updatedReservation: AggReservation = response.body;
-      // Make assertions on the updated reservation object
+      expect(response.body).toEqual(mockResponse);
+    });
+
+    it('should return 400 when updating a reservation in the past', async () => {
+      const reservationId = 1;
+      const reservationPatchData: ReservationPatchDTO = {
+        // Provide the necessary data for updating the reservation
+      };
+
+      const mockError = {
+        isError: true,
+        errorCode: 'P0001',
+      };
+
+      jest
+        .spyOn(reservationsService, 'updateReservation')
+        .mockRejectedValue(new BadRequestException('The reservation you are trying to update is in the past', mockError));
+
+      const response = await request(app.getHttpServer())
+        .patch(`/reservations/${reservationId}`)
+        .send(reservationPatchData)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'The reservation you are trying to update is in the past',
+      });
     });
 
     it('should return 404 when updating a non-existing reservation', async () => {
@@ -52,14 +78,17 @@ describe('ReservationsController (e2e)', () => {
 
       jest
         .spyOn(reservationsService, 'updateReservation')
-        .mockImplementation(async () => null);
+        .mockRejectedValue(new NotFoundException('Reservation not found'));
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
         .send(reservationPatchData)
         .expect(404);
 
-      // Make assertions on the response body or status code
+      expect(response.body).toEqual({
+        statusCode: 404,
+        message: 'Reservation not found',
+      });
     });
   });
 });
