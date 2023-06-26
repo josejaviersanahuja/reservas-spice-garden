@@ -1,94 +1,119 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, BadRequestException, NotFoundException } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '../../src/app.module';
-import { ReservationsService } from '../../src/components/reservations/reservations.service';
-import { ReservationPatchDTO, AggReservation } from '../../src/components/reservations/reservations.schema';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+import {
+  AggReservation,
+  AggregatedReservations,
+  ReservationPatchDTO,
+  ReservationPostDTO,
+} from './reservations.schema';
+import { Client } from 'pg';
+import Pool from 'pg-pool';
+import { PostgresCrudService } from '../../app.schema';
+import { reservationPatchBuildQuery } from './reservations.util';
 
-describe('ReservationsController (e2e)', () => {
-  let app: INestApplication;
-  let reservationsService: ReservationsService;
+@Injectable()
+export class ReservationsService {
+  constructor(@Inject('pg') private pg: Pool<Client>) {}
 
-  beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+  async getReservationsBetweenDates(
+    dateI: string,
+    dateF: string,
+  ): Promise<{
+    numAgendas: number;
+    data: AggregatedReservations[];
+  }> {
+    const { rowCount, rows } = await this.pg.query(
+      `SELECT * FROM get_reservations_between_dates('${dateI}','${dateF}')`,
+    );
 
-    app = moduleFixture.createNestApplication();
-    reservationsService = moduleFixture.get<ReservationsService>(ReservationsService);
+    return {
+      numAgendas: rowCount,
+      data: rows,
+    };
+  }
 
-    await app.init();
-  });
+  async getReservationsByDate(date: string): Promise<{
+    numAgendas: number;
+    data: AggregatedReservations[];
+  }> {
+    const { rowCount, rows } = await this.pg.query(
+      `SELECT * FROM get_reservations_between_dates('${date}')`,
+    );
 
-  afterAll(async () => {
-    await app.close();
-  });
+    return {
+      numAgendas: rowCount,
+      data: rows,
+    };
+  }
 
-  describe('/reservations/:id (PATCH)', () => {
-    it('should return 200 when updating an existing reservation', async () => {
-      const reservationId = 1;
-      const reservationPatchData: ReservationPatchDTO = {
-        // Provide the necessary data for updating the reservation
-      };
+  async createReservation(dto: ReservationPostDTO): Promise<AggReservation> {
+    const {
+      fecha,
+      hora,
+      resNumber,
+      resName,
+      room,
+      isBonus,
+      bonusQty,
+      mealPlan,
+      paxNumber,
+      cost,
+      observations,
+      isNoshow,
+    } = dto;
+    const { rows } = await this.pg.query(
+      `SELECT insert_reservation(
+        '${fecha}',
+        '${hora}',
+        ${resNumber},
+        '${resName}',
+        '${room}',
+        ${isBonus},
+        '${bonusQty}',
+        '${mealPlan}',
+        '${paxNumber}',
+        '${cost}',
+        '${observations}',
+        ${isNoshow}
+      ) as result`,
+    );
+    const response: PostgresCrudService<AggReservation> = rows[0].result;
 
-      const mockResponse: AggReservation = {} as AggReservation;
-      jest
-        .spyOn(reservationsService, 'updateReservation')
-        .mockResolvedValue(mockResponse);
+    if (response.isError) {
+      throw new UnprocessableEntityException(response.message);
+    }
+    if (!response.isError && !response.result) {
+      throw new BadRequestException(response.message);
+    }
+    return response.result;
+  }
 
-      const response = await request(app.getHttpServer())
-        .patch(`/reservations/${reservationId}`)
-        .send(reservationPatchData)
-        .expect(200);
-
-      expect(response.body).toEqual(mockResponse);
-    });
-
-    it('should return 400 when updating a reservation in the past', async () => {
-      const reservationId = 1;
-      const reservationPatchData: ReservationPatchDTO = {
-        // Provide the necessary data for updating the reservation
-      };
-
-      const mockError = {
-        isError: true,
-        errorCode: 'P0001',
-      };
-
-      jest
-        .spyOn(reservationsService, 'updateReservation')
-        .mockRejectedValue(new BadRequestException('The reservation you are trying to update is in the past', mockError));
-
-      const response = await request(app.getHttpServer())
-        .patch(`/reservations/${reservationId}`)
-        .send(reservationPatchData)
-        .expect(400);
-
-      expect(response.body).toEqual({
-        statusCode: 400,
-        message: 'The reservation you are trying to update is in the past',
-      });
-    });
-
-    it('should return 404 when updating a non-existing reservation', async () => {
-      const reservationId = 100;
-      const reservationPatchData: ReservationPatchDTO = {
-        // Provide the necessary data for updating the reservation
-      };
-
-      jest
-        .spyOn(reservationsService, 'updateReservation')
-        .mockRejectedValue(new NotFoundException('Reservation not found'));
-
-      const response = await request(app.getHttpServer())
-        .patch(`/reservations/${reservationId}`)
-        .send(reservationPatchData)
-        .expect(404);
-
-      expect(response.body).toEqual({
-        statusCode: 404,
-        message: 'Reservation not found',
-      });
-    });
-  });
-});
+  async updateReservation(
+    id: number,
+    dto: ReservationPatchDTO,
+  ): Promise<AggReservation> {
+    const query = reservationPatchBuildQuery(id, dto);
+    const { rows } = await this.pg.query(query);
+    const response: PostgresCrudService<AggReservation> = rows[0].result;
+    if (response.isError) {
+      if (response.errorCode === 'P0001') {
+        throw new BadRequestException(
+          'The reservation you are trying to update is in the past',
+        );
+      }
+      if (response.isError && !response.message) {
+        throw new Error(response.stack);
+      }
+      throw new Error(response.message + response.errorCode);
+    }
+    if (!response.isError && !response.result) {
+      throw new NotFoundException(response.message);
+    }
+    return response.result;
+  }
+}
