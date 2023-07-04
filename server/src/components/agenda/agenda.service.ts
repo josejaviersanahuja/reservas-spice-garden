@@ -4,7 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Agenda, AgendaPatchDTO, AgendaPostDTO } from './agenda.schema';
+import {
+  Agenda,
+  AgendaPatchDTO,
+  AgendaPostDTO,
+  Availability,
+} from './agenda.schema';
 import { Client } from 'pg';
 import Pool from 'pg-pool';
 import { PostgresCrudService, TIME_OPTIONS } from '../../app.schema';
@@ -32,11 +37,7 @@ export class AgendaService {
   async getAgendaAvailability(
     fecha: string,
     hora: TIME_OPTIONS,
-  ): Promise<{
-    fecha: string;
-    hora: TIME_OPTIONS;
-    availableSeats: number;
-  }> {
+  ): Promise<Availability> {
     const { rows } = await this.pg.query(
       `SELECT get_available_seats('${fecha}', '${hora}') as result`,
     );

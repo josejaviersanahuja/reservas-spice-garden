@@ -10,6 +10,7 @@ import { UsersModule } from './components/users/users.module';
 import { RestaurantThemesModule } from './components/restaurant-themes/restaurant-themes.module';
 import { AgendaModule } from './components/agenda/agenda.module';
 import { ReservationsModule } from './components/reservations/reservations.module';
+import { StatisticsModule } from './components/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ReservationsModule } from './components/reservations/reservations.modul
     RestaurantThemesModule,
     AgendaModule,
     ReservationsModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

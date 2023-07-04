@@ -5,9 +5,9 @@ import {
 } from '../../app.pipes';
 import { AgendaService } from './agenda.service';
 import { AgendaPatchDTO, AgendaPostDTO } from './agenda.schema';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ValidateAgendaPatchDTOPipe } from './agenda.pipe';
-import { TIME_OPTIONS } from 'src/app.schema';
+import { TIME_OPTIONS } from '../../app.schema';
 
 @ApiTags('agenda')
 @Controller('agenda')
@@ -25,26 +25,6 @@ export class AgendaController {
   }
 
   @Get('/:fecha/availability/:hora')
-  @ApiOkResponse({
-    description: 'Returns the availability of a given date and time',
-    schema: {
-      type: 'object',
-      properties: {
-        fecha: {
-          type: 'string',
-          example: '2021-01-01',
-        },
-        hora: {
-          type: 'string',
-          example: '19:00',
-        },
-        availableSeats: {
-          type: 'number',
-          example: -1,
-        },
-      },
-    },
-  })
   async getAgendaAvailability(
     @Param('fecha', ValidateStringDatePipe) fecha: string,
     @Param('hora', ValidateStringTimeOptionsPipe) hora: TIME_OPTIONS,

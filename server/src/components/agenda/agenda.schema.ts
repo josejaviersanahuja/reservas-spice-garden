@@ -3,12 +3,14 @@ import {
   IsBoolean,
   IsDate,
   IsDateString,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   Min,
 } from 'class-validator';
+import { TIME_OPTIONS } from '../../app.schema';
 
 export class PureAgenda {
   @IsDate()
@@ -178,4 +180,13 @@ export class AgendaPatchDTO {
   @IsInt()
   @Min(0)
   readonly '21:45'?: number | undefined;
+}
+
+export class Availability {
+  @IsDateString()
+  fecha: string;
+  @IsEnum(TIME_OPTIONS)
+  hora: TIME_OPTIONS;
+  @IsInt()
+  availableSeats: number;
 }
