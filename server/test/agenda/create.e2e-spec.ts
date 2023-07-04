@@ -24,6 +24,7 @@ describe('ReservationsController (e2e)', () => {
 
   afterAll(async () => {
     await pg.query('CALL seed()');
+    await pg.end();
     await app.close();
   });
 

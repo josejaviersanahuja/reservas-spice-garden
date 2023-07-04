@@ -20,15 +20,17 @@ describe('ReservationsController (e2e)', () => {
   });
 
   afterAll(async () => {
+    await pg.query('CALL seed()');
+    await pg.end();
     await app.close();
   });
 
-  describe('/reservations/:fecha (GET)', () => {
+  describe('/reservations?fecha0= (GET)', () => {
     it('should return 0 ', () => {
       const fecha = '2023-06-15';
 
       return request(app.getHttpServer())
-        .get(`/reservations/${fecha}`)
+        .get(`/reservations/byDate?fecha0=${fecha}`)
         .expect(200)
         .expect((response) => {
           const numAgendas = response.body.numAgendas;
@@ -52,12 +54,12 @@ describe('ReservationsController (e2e)', () => {
         });
     });
   });
-  describe('/reservations/:fecha (GET)', () => {
+  describe('/reservations/byDate?fecha0= (GET)', () => {
     it('should return reservations for a specific date', () => {
       const fecha = '2023-07-01';
 
       return request(app.getHttpServer())
-        .get(`/reservations/${fecha}`)
+        .get(`/reservations/byDate?fecha0=${fecha}`)
         .expect(200)
         .expect((response) => {
           const numAgendas = response.body.numAgendas;

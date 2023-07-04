@@ -346,9 +346,111 @@ export class ReservationsController {
     },
   })
   async getReservationsByDate(
-    @Param('fecha', ValidateStringDatePipe) fecha: string,
+    @Query('fecha0', ValidateStringDatePipe) fecha0: string,
   ) {
-    return this.reservationService.getReservationsByDate(fecha);
+    return this.reservationService.getReservationsByDate(fecha0);
+  }
+
+  @ApiOperation({ summary: 'Get reservations by reservation number' })
+  @ApiOkResponse({
+    schema: {
+      type: 'object',
+      properties: {
+        bonusRes: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              fecha: {
+                type: 'string',
+                format: 'yyyy-mm-dd',
+                example: '2021-01-01',
+              },
+              hora: {
+                type: 'string',
+                enum: Object.values(TIME_OPTIONS),
+              },
+              res_number: { type: 'number' },
+              res_name: { type: 'string' },
+              room: {
+                type: 'string',
+                enum: Object.values(ROOM_OPTIONS),
+              },
+              is_bonus: { type: 'boolean' },
+              bonus_qty: { type: 'number' },
+              meal_plan: {
+                type: 'string',
+                enum: Object.values(MEAL_PLAN),
+              },
+              pax_number: { type: 'number' },
+              cost: { type: 'number' },
+              observations: { type: 'string' },
+              is_noshow: { type: 'boolean' },
+              created_at: {
+                type: 'string',
+                example: '2021-01-01T00:00:00.000Z',
+              },
+              updated_at: {
+                type: 'string',
+                example: '2021-01-01T00:00:00.000Z',
+              },
+              is_deleted: { type: 'boolean' },
+            },
+          },
+        },
+        payableRes: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'number' },
+              fecha: {
+                type: 'string',
+                format: 'yyyy-mm-dd',
+                example: '2021-01-01',
+              },
+              hora: {
+                type: 'string',
+                enum: Object.values(TIME_OPTIONS),
+              },
+              res_number: { type: 'number' },
+              res_name: { type: 'string' },
+              room: {
+                type: 'string',
+                enum: Object.values(ROOM_OPTIONS),
+              },
+              is_bonus: { type: 'boolean' },
+              bonus_qty: { type: 'number' },
+              meal_plan: {
+                type: 'string',
+                enum: Object.values(MEAL_PLAN),
+              },
+
+              pax_number: { type: 'number' },
+              cost: { type: 'number' },
+              observations: { type: 'string' },
+              is_noshow: { type: 'boolean' },
+              created_at: {
+                type: 'string',
+                example: '2021-01-01T00:00:00.000Z',
+              },
+              updated_at: {
+                type: 'string',
+                example: '2021-01-01T00:00:00.000Z',
+              },
+              is_deleted: { type: 'boolean' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @Get('byResNumber/:resNumber')
+  async getReservationsByResNumber(
+    @Param('resNumber', ParseIntPipe) resNumber: number,
+  ) {
+    return this.reservationService.getReservationsByResNumber(resNumber);
   }
 
   @ApiOperation({ summary: 'Create reservation' })

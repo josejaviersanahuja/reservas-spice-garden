@@ -19,6 +19,7 @@ describe('Restaurant Themes Controller (e2e)', () => {
   });
 
   afterAll(async () => {
+    await pg.end();
     await app.close();
   });
 

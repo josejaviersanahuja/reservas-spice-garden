@@ -51,6 +51,26 @@ export class ReservationsService {
     };
   }
 
+  async getReservationsByResNumber(resNumber: number): Promise<{
+    bonusRes: AggReservation[];
+    payableRes: AggReservation[];
+  }> {
+    const { rows: bonusRows } = await this.pg.query(
+      `SELECT * FROM get_bonus_reservations(${resNumber})`,
+    );
+
+    const bonusRes = bonusRows;
+
+    const { rows: payableRows } = await this.pg.query(
+      `SELECT * FROM get_payable_reservations(${resNumber})`,
+    );
+    const payableRes = payableRows;
+    return {
+      bonusRes,
+      payableRes,
+    };
+  }
+
   async createReservation(dto: ReservationPostDTO): Promise<AggReservation> {
     const {
       fecha,

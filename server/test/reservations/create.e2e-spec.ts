@@ -26,7 +26,7 @@ describe('ReservationsController (e2e)', () => {
 
   afterAll(async () => {
     await pg.query('CALL seed()');
-
+    await pg.end();
     await app.close();
   });
 
@@ -94,6 +94,7 @@ describe('ReservationsController (e2e)', () => {
     // considering id 225 is lost forever, the id for this one will be 226
     it('should return 201 when inserting a valid reservation on a valid agenda', async () => {
       const currentDate = new Date();
+      currentDate.setFullYear(currentDate.getFullYear() + 1);
       const agenda: AgendaPostDTO = {
         fecha: currentDate.toISOString(),
         restaurantThemeId: 1,

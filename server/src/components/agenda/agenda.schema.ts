@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+// import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsDate,
@@ -107,19 +107,19 @@ export class Agenda {
 }
 
 export class AgendaPostDTO {
-  @ApiProperty({
+  /* @ApiProperty({
     type: String,
     format: 'yyyy-mm-dd',
     example: '2021-01-01',
     description: 'Date cant be in the past',
-  })
+  }) */
   @IsDateString()
   readonly fecha: string;
-  @ApiProperty({
+  /* @ApiProperty({
     type: Number,
     example: 2,
     minimum: 1,
-  })
+  }) */
   @IsInt()
   @Min(1)
   readonly restaurantThemeId: number;
