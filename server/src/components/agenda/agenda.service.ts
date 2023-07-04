@@ -7,7 +7,7 @@ import {
 import { Agenda, AgendaPatchDTO, AgendaPostDTO } from './agenda.schema';
 import { Client } from 'pg';
 import Pool from 'pg-pool';
-import { PostgresCrudService } from '../../app.schema';
+import { PostgresCrudService, TIME_OPTIONS } from '../../app.schema';
 import { AgendaPatchQueryBuilder } from './agenda.util';
 
 @Injectable()
@@ -27,6 +27,35 @@ export class AgendaService {
       throw new NotFoundException();
     }
     return res.result;
+  }
+
+  async getAgendaAvailability(
+    fecha: string,
+    hora: TIME_OPTIONS,
+  ): Promise<{
+    fecha: string;
+    hora: TIME_OPTIONS;
+    availableSeats: number;
+  }> {
+    const { rows } = await this.pg.query(
+      `SELECT get_available_seats('${fecha}', '${hora}') as result`,
+    );
+
+    const res = rows[0].result;
+    if (res === -102) {
+      throw new Error('Problem in SUM function in reservations');
+    }
+    if (res === -101) {
+      throw new Error('Problem in SELECT in agenda');
+    }
+    if (res === -100) {
+      throw new NotFoundException(`No agenda found for ${fecha}`);
+    }
+    return {
+      fecha,
+      hora,
+      availableSeats: res,
+    };
   }
 
   async createAgenda(dto: AgendaPostDTO): Promise<Agenda> {

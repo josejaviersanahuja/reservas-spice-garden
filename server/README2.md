@@ -90,7 +90,7 @@ SELECT delete_reservation(226); -- 1,0,-1
 ## Obtener disponibilidad de asientos
 
 - Método: GET
-- Ruta: `/availability`
+- Ruta: `/agenda/:fecha/availability/:hora`
 - Descripción: Obtiene la disponibilidad de asientos para una fecha y hora específicas.
 - Parámetros de entrada: Fecha (fecha) y hora (hora).
 - Respuesta: Código de estado y número de asientos disponibles.
