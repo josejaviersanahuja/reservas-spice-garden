@@ -224,3 +224,57 @@ EXCEPTION
     );
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_agenda_info_between_dates(_fechai DATE, _fechaf DATE)
+RETURNS JSON AS $$
+DECLARE
+    agenda_info JSON;
+    stack_info TEXT;
+BEGIN
+    -- Obtener la información de la agenda y el tema del restaurante para la fecha especificada
+    SELECT
+        json_agg(
+            json_build_object(
+                'fecha', a.fecha,
+                'themeName', rt.theme_name,
+                'imageUrl', rt.image_url,
+                't1900', a.t1900,
+                't1915', a.t1915,
+                't1930', a.t1930,
+                't1945', a.t1945,
+                't2000', a.t2000,
+                't2015', a.t2015,
+                't2030', a.t2030,
+                't2045', a.t2045,
+                't2100', a.t2100,
+                't2115', a.t2115,
+                't2130', a.t2130,
+                't2145', a.t2145
+            )
+        ) INTO agenda_info
+    FROM
+        agenda AS a
+    JOIN
+        restaurant_themes AS rt ON a.restaurant_theme_id = rt.id
+    WHERE
+        a.fecha >= _fechai
+    AND
+        a.fecha < _fechaf;
+
+    RETURN json_build_object(
+        'isError', FALSE,
+        'result', agenda_info
+    );
+
+EXCEPTION
+    WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+        -- Capturar y devolver el error como objeto JSON
+        RETURN json_build_object(
+            'isError', TRUE,
+            'message', SQLERRM,
+            'errorCode', SQLSTATE,
+            'stack', stack_info
+        );
+END;
+$$ LANGUAGE plpgsql;

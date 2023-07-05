@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ValidateStringDatePipe } from '../../app.pipes';
 import { ApiTags } from '@nestjs/swagger';
 import { StatisticsService } from './statistics.service';
@@ -14,5 +14,18 @@ export class StatisticsController {
     @Query('fechaF', ValidateStringDatePipe) fechaF: string,
   ) {
     return this.statisticsService.getStatisticsByTheme(fechaI, fechaF);
+  }
+
+  @Get('/assistants/:fecha')
+  async getAssistants(@Param('fecha', ValidateStringDatePipe) fecha: string) {
+    return this.statisticsService.getStatisticsAssistants(fecha);
+  }
+
+  @Get()
+  async getStatistics(
+    @Query('fechaI', ValidateStringDatePipe) fechaI: string,
+    @Query('fechaF', ValidateStringDatePipe) fechaF: string,
+  ) {
+    return this.statisticsService.getStatistics(fechaI, fechaF);
   }
 }

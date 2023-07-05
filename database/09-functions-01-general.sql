@@ -1,4 +1,5 @@
 
+-- this function was used inside agenda component
 CREATE OR REPLACE FUNCTION get_available_seats(in_fecha DATE, in_hora TIME_OPTIONS_ENUM) 
 RETURNS INTEGER AS $$
 DECLARE

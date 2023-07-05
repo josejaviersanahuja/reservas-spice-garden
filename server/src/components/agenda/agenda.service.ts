@@ -95,4 +95,21 @@ export class AgendaService {
     }
     return res.result;
   }
+
+  async getAgendasBetweenDates(fechaI: string, fechaF: string) {
+    const { rows } = await this.pg.query(
+      `SELECT get_agenda_info_between_dates('${fechaI}', '${fechaF}') as result`,
+    );
+    const res: PostgresCrudService<Agenda[]> = rows[0].result;
+    if (res.isError) {
+      if (!res.message) {
+        throw new Error(res.stack);
+      }
+      throw new Error(res.message + ' ' + res.errorCode);
+    }
+    if (!res.result) {
+      return [];
+    }
+    return res.result;
+  }
 }

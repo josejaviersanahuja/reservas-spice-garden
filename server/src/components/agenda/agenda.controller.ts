@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ValidateStringDatePipe,
   ValidateStringTimeOptionsPipe,
@@ -15,8 +23,11 @@ export class AgendaController {
   constructor(private agendaService: AgendaService) {}
 
   @Get() // @TODO service getAgendas con limit offset y fechas de acuerdo a los meses no se
-  async getAgendas() {
-    return 'endpoint agenda';
+  async getAgendas(
+    @Query('fechaI', ValidateStringDatePipe) fechaI: string,
+    @Query('fechaF', ValidateStringDatePipe) fechaF: string,
+  ) {
+    return this.agendaService.getAgendasBetweenDates(fechaI, fechaF);
   }
 
   @Get('/:fecha')

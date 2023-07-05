@@ -44,7 +44,7 @@ describe('ReservationsController (e2e)', () => {
   describe('/statistics/byTheme?fechaI=&fechaF= (GET)', () => {
     it('should return array of length 0 when fechaF < fechaI', () => {
       const fechaI = '2023-07-01';
-      const fechaF = '2023-06-31';
+      const fechaF = '2023-06-30';
 
       return request(app.getHttpServer())
         .get(`/statistics/byTheme?fechaI=${fechaI}&fechaF=${fechaF}`)
