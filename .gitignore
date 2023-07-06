@@ -1,2 +1,8 @@
+# hide API_KEY for chatgpt
 chatgpt/.env
+
+# hiding env variables
 *.env
+
+# hiding data files from docker postgres
+database/pgdata
