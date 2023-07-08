@@ -21,4 +21,21 @@ export class UsersService {
     }
     return rows[0] as PureUser;
   }
+
+  async updateUser(id: number, dto: UserUpdateDTO): Promise<User> {
+  const query = UserUpdateQueryBuilder(id, dto);
+  const { rows } = await this.pg.query(query);
+  const res: PostgresCrudService<User> = rows[0].result;
+  if (res.isError) {
+    if (!res.result) {
+      throw new NotFoundException('User not found');
+    }
+    if (!res.message) {
+      throw new Error(res.stack);
+    }
+    throw new Error(res.message + ' ' + res.errorCode);
+  }
+  return res.result;
+}
+
 }
