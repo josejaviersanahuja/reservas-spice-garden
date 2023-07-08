@@ -35,11 +35,21 @@ export class User {
   username: string;
   @IsString()
   @IsNotEmpty()
-  userPassword: string;
+  user_password: string;
   @IsDateString()
-  createdAt: string;
+  created_at: string;
   @IsDateString()
-  updatedAt: string;
+  updated_at: string;
   @IsBoolean()
-  isDeleted: boolean;
+  is_deleted: boolean;
+}
+
+export class UserPatchDTO {
+  @IsString()
+  @IsNotEmpty()
+  username?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  user_password?: string;
 }
