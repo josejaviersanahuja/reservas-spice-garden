@@ -20,8 +20,8 @@ export class UsersController {
   @Patch('/:id')
   updateUser(
     @Param('id', ParseIntPipe) id: number,
-    @Body(ValidateAgendaPatchDTOPipe) dto: UserPatchDTO, // create and fix import here for pipe
+    @Body(ValidateUserPatchDTOPipe) dto: UserPatchDTO, // create and fix import here for pipe
   ) {
-    return this.userService.getUserById(id);
+    return this.userService.updateUser(id, dto);
   }
 }
