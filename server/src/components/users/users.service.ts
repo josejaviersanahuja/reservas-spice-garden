@@ -23,7 +23,7 @@ export class UsersService {
   }
 
   async updateUser(id: number, dto: UserUpdateDTO): Promise<PureUser> {
-  const query = UserUpdateQueryBuilder(id, dto);
+  const query = UserUpdateQueryBuilder(id, dto); // fix this and import
   const { rows } = await this.pg.query(query);
   const res: PostgresCrudService<User> = rows[0].result;
   if (res.isError) {
