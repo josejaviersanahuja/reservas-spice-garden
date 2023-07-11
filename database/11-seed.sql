@@ -5,6 +5,12 @@ AS $$
 TRUNCATE restaurant_themes RESTART IDENTITY CASCADE;
 TRUNCATE agenda RESTART IDENTITY CASCADE;
 TRUNCATE reservations RESTART IDENTITY;
+TRUNCATE users RESTART IDENTITY;
+
+INSERT INTO users (username, user_password) VALUES ('reception', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('cocina', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('maitre', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('direccion', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
 
 INSERT INTO restaurant_themes (theme_name, description, image_url) VALUES
 ('Restaurante Mexicano', 'Restaurante de comida mexicana', ''),

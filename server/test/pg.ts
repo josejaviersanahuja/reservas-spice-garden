@@ -12,10 +12,11 @@ const pgPool = new Pool({
 export const pg = {
   query: async (query: string) => {
     // await pgPool.connect();
-    await pgPool.query(query);
+    return await pgPool.query(query);
     // await pgPool.end();
   },
   end: async () => {
     await pgPool.end();
   },
+  password_test: '123456',
 };

@@ -250,7 +250,7 @@ BEGIN
                 't2115', a.t2115,
                 't2130', a.t2130,
                 't2145', a.t2145
-            )
+            ) ORDER BY a.fecha ASC
         ) INTO agenda_info
     FROM
         agenda AS a

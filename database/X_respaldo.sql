@@ -10,10 +10,10 @@ CREATE TABLE users (
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-INSERT INTO users (username, user_password) VALUES ('reception', 'Welcome123');
-INSERT INTO users (username, user_password) VALUES ('cocina', 'Cocina123');
-INSERT INTO users (username, user_password) VALUES ('maitre', 'Maitre123');
-INSERT INTO users (username, user_password) VALUES ('direccion', 'Direccion123');
+INSERT INTO users (username, user_password) VALUES ('reception', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
+INSERT INTO users (username, user_password) VALUES ('cocina', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
+INSERT INTO users (username, user_password) VALUES ('maitre', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
+INSERT INTO users (username, user_password) VALUES ('direccion', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
 DROP TABLE IF EXISTS restaurant_themes;
 
 CREATE TABLE restaurant_themes (
@@ -614,7 +614,7 @@ BEGIN
                 't2115', a.t2115,
                 't2130', a.t2130,
                 't2145', a.t2145
-            )
+            ) ORDER BY a.fecha ASC
         ) INTO agenda_info
     FROM
         agenda AS a

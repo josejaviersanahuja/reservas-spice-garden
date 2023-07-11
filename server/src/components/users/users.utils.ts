@@ -1,15 +1,18 @@
 import { UserPatchDTO } from './users.schema';
 
-export const UsersPatchQueryBuilder = (dto: UserPatchDTO): string => {
-  const { id, username, user_password } = dto;
+export const UsersPatchQueryBuilder = (
+  id: number,
+  dto: UserPatchDTO,
+): string => {
+  const { username, user_password } = dto;
   let query = `SELECT update_user(${id}`;
   if (username) {
     query += `, '${username}'`;
   } else {
     query += `, null`;
   }
-  if (userPassword) {
-    query += `, '${userPassword}'`;
+  if (user_password) {
+    query += `, '${user_password}'`;
   } else {
     query += `, null`;
   }

@@ -33,6 +33,9 @@ describe('Users Controller (e2e)', () => {
           const users: PureUser[] = response.body;
           expect(users).toBeInstanceOf(Array);
           expect(users.length).toBe(4);
+          users.forEach((user) => {
+            expect(user).not.toHaveProperty('user_password');
+          });
         });
     });
   });

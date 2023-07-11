@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, NotFoundException } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { PureUser } from '../../src/components/users/users.schema';
@@ -35,6 +35,7 @@ describe('Users Controller (e2e)', () => {
           const user: PureUser = response.body;
           expect(user).toBeDefined();
           expect(user.id).toBe(id);
+          expect(user).not.toHaveProperty('user_password');
         });
     });
 
