@@ -24,6 +24,7 @@ export default registerAs('config', () => {
       pass: process.env.DB_PASS,
       user: process.env.DB_USER,
     },
+    apiKey: process.env.API_KEY,
   };
 });
 /*

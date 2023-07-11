@@ -10,6 +10,7 @@ import {
   AggregatedReservations,
   ReservationPatchDTO,
   ReservationPostDTO,
+  SuggestedReservation,
 } from './reservations.schema';
 import { Client } from 'pg';
 import Pool from 'pg-pool';
@@ -69,6 +70,22 @@ export class ReservationsService {
       bonusRes,
       payableRes,
     };
+  }
+
+  async getSuggestionByResNumber(
+    resNumber: number,
+  ): Promise<SuggestedReservation> {
+    const { rows } = await this.pg.query(
+      `SELECT get_reservation_suggestion(${resNumber}) as result`,
+    );
+    const response: PostgresCrudService<SuggestedReservation> = rows[0].result;
+    if (response.isError) {
+      throw new Error(response.message + response.errorCode);
+    }
+    if (!response.isError && !response.result) {
+      throw new NotFoundException(response.message);
+    }
+    return response.result;
   }
 
   async createReservation(dto: ReservationPostDTO): Promise<AggReservation> {

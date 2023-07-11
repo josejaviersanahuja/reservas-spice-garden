@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { pg } from './pg';
+import { ApiKeyGuard } from '../src/guards/apiKey.guard';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -13,6 +14,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalGuards(new ApiKeyGuard());
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
@@ -25,6 +27,7 @@ describe('AppController (e2e)', () => {
   it('/ (GET)', () => {
     return request(app.getHttpServer())
       .get('/')
+      .set('apikey', process.env.API_KEY)
       .expect(200)
       .expect('Hello World! spice_garden_stag');
   });

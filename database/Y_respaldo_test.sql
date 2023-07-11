@@ -10,10 +10,10 @@ CREATE TABLE users (
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-INSERT INTO users (username, user_password) VALUES ('reception', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
-INSERT INTO users (username, user_password) VALUES ('cocina', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
-INSERT INTO users (username, user_password) VALUES ('maitre', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
-INSERT INTO users (username, user_password) VALUES ('direccion', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
+INSERT INTO users (username, user_password) VALUES ('reception', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('cocina', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('maitre', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('direccion', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
 DROP TABLE IF EXISTS restaurant_themes;
 
 CREATE TABLE restaurant_themes (
@@ -1482,6 +1482,60 @@ $$ LANGUAGE plpgsql;
 SELECT delete_reservation(226);
 */
 
+CREATE OR REPLACE FUNCTION get_reservation_suggestion(reservation_number INTEGER)
+RETURNS JSON AS $$
+DECLARE
+    reservation_data JSON;
+    stack_info TEXT;
+BEGIN
+    BEGIN
+    SELECT
+        json_build_object(
+            'isError', FALSE,
+            'result', (
+                SELECT
+                    json_build_object(
+                        'hora', r.hora,
+                        'res_number', r.res_number,
+                        'res_name', r.res_name,
+                        'room', r.room,
+                        'is_bonus', r.is_bonus,
+                        'bonus_qty', r.bonus_qty,
+                        'meal_plan', r.meal_plan,
+                        'pax_number', r.pax_number,
+                        'cost', r.cost,
+                        'observations', r.observations
+                    )
+                FROM
+                    reservations r
+                WHERE
+                    r.res_number = reservation_number
+                ORDER BY
+                    r.created_at DESC
+                LIMIT 1
+            )
+        ) INTO reservation_data;
+
+    IF NOT FOUND THEN
+        reservation_data := json_build_object(
+            'isError', FALSE,
+            'result', NULL,
+            'message', 'This is the first reservation for this reservation number'
+        );
+    END IF;
+
+    RETURN reservation_data;
+    EXCEPTION
+    WHEN OTHERS THEN
+      GET STACKED DIAGNOSTICS stack_info = PG_EXCEPTION_CONTEXT;
+      reservation_data := json_build_object(
+        'isError', TRUE, 'message', SQLERRM, 'sqlError', SQLSTATE,
+        'stack', stack_info
+        );
+  END;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION create_user(
   _username VARCHAR(50),
   _user_password VARCHAR(255)
@@ -1652,10 +1706,10 @@ TRUNCATE agenda RESTART IDENTITY CASCADE;
 TRUNCATE reservations RESTART IDENTITY;
 TRUNCATE users RESTART IDENTITY;
 
-INSERT INTO users (username, user_password) VALUES ('reception', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
-INSERT INTO users (username, user_password) VALUES ('cocina', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
-INSERT INTO users (username, user_password) VALUES ('maitre', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
-INSERT INTO users (username, user_password) VALUES ('direccion', '$2b$10$VyUv0xmIJNSQja8AQMYeiuRzooUiEsu2vAMueYYzu6mrS2ARF3X8C');
+INSERT INTO users (username, user_password) VALUES ('reception', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('cocina', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('maitre', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
+INSERT INTO users (username, user_password) VALUES ('direccion', '$2b$10$0heNSVYQMeYBzyfYSSdyE.fBY.GBhg6iQN/0apzPZEgtdMaI70O32');
 
 INSERT INTO restaurant_themes (theme_name, description, image_url) VALUES
 ('Restaurante Mexicano', 'Restaurante de comida mexicana', ''),

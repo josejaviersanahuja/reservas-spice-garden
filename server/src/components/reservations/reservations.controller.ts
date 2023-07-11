@@ -453,6 +453,16 @@ export class ReservationsController {
     return this.reservationService.getReservationsByResNumber(resNumber);
   }
 
+  @ApiOperation({
+    summary: 'Get suggested data reservation by reservation number',
+  })
+  @Get('suggestion/:resNumber')
+  async getSuggestionByResNumber(
+    @Param('resNumber', ParseIntPipe) resNumber: number,
+  ) {
+    return this.reservationService.getSuggestionByResNumber(resNumber);
+  }
+
   @ApiOperation({ summary: 'Create reservation' })
   @ApiResponse({
     status: 201,

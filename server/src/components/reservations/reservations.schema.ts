@@ -296,3 +296,26 @@ export class AggregatedReservations {
   @IsString()
   theme_name: string;
 }
+
+export class SuggestedReservation {
+  @IsEnum(TIME_OPTIONS)
+  readonly hora: TIME_OPTIONS;
+  @IsInt()
+  readonly res_number: number;
+  @IsString()
+  readonly res_name: string;
+  @IsEnum(ROOM_OPTIONS)
+  readonly room: ROOM_OPTIONS;
+  @IsBoolean()
+  readonly is_bonus: boolean;
+  @IsInt()
+  readonly bonus_qty: number;
+  @IsEnum(MEAL_PLAN)
+  readonly meal_plan: MEAL_PLAN;
+  @IsInt()
+  readonly pax_number: number;
+  @IsNumber()
+  readonly cost: number;
+  @IsString()
+  readonly observations: string;
+}
