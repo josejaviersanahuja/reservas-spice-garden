@@ -11,6 +11,7 @@ import { RestaurantThemesModule } from './components/restaurant-themes/restauran
 import { AgendaModule } from './components/agenda/agenda.module';
 import { ReservationsModule } from './components/reservations/reservations.module';
 import { StatisticsModule } from './components/statistics/statistics.module';
+import { AuthModule } from './components/auth/auth.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { StatisticsModule } from './components/statistics/statistics.module';
     AgendaModule,
     ReservationsModule,
     StatisticsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

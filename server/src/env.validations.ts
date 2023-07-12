@@ -19,6 +19,9 @@ class EnvironmentVariables {
 
   @IsString()
   API_KEY: string;
+
+  @IsString()
+  JWT_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {

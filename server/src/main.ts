@@ -6,8 +6,8 @@ import { ApiKeyGuard } from './guards/apiKey.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalGuards(new ApiKeyGuard());
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalGuards(new ApiKeyGuard());
 
   const config = new DocumentBuilder()
     .setTitle('Spice Garden API')

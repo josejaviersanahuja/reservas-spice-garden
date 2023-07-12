@@ -25,8 +25,13 @@ export default registerAs('config', () => {
       user: process.env.DB_USER,
     },
     apiKey: process.env.API_KEY,
+    jwtSecret: process.env.JWT_SECRET,
   };
 });
+
+export const LOCAL_STRATEGY = 'local';
+
+export const JWT_SECRET = process.env.JWT_SECRET;
 /*
 const pg = new Pool({
       user: process.env.DB_USER,
