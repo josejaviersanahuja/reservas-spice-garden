@@ -12,6 +12,7 @@ import { AgendaModule } from './components/agenda/agenda.module';
 import { ReservationsModule } from './components/reservations/reservations.module';
 import { StatisticsModule } from './components/statistics/statistics.module';
 import { AuthModule } from './components/auth/auth.module';
+import { ReportsModule } from './components/reports/reports.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from './components/auth/auth.module';
     ReservationsModule,
     StatisticsModule,
     AuthModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

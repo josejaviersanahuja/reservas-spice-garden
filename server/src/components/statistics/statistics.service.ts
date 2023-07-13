@@ -18,6 +18,7 @@ export class StatisticsService {
   ): Promise<StatsByTheme[]> {
     const query = `SELECT * FROM get_percentage_per_theme('${fechaI}', '${fechaF}')`;
     const { rows } = await this.pg.query(query);
+
     return rows;
   }
 
@@ -25,6 +26,7 @@ export class StatisticsService {
     const query = `SELECT * FROM get_assistants('${fecha}') as result`;
     const { rows } = await this.pg.query(query);
     const result: PostgresCrudService<StatsAssistants> = rows[0].result;
+
     if (result.isError) {
       if (result.message) {
         throw new Error(result.message + ' ' + result.errorCode);
