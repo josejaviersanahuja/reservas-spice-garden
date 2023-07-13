@@ -8,7 +8,7 @@ import { pg } from '../pg';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
-  // let reservationsService: ReservationsService;
+  let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -21,6 +21,16 @@ describe('ReservationsController (e2e)', () => {
     //   moduleFixture.get<ReservationsService>(ReservationsService);
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
+    const loginPayload = {
+      username: 'reception',
+      password: '123456',
+    };
+
+    const respose = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginPayload);
+
+    jwt = respose.body.access_token;
   });
 
   afterAll(async () => {
@@ -31,21 +41,9 @@ describe('ReservationsController (e2e)', () => {
 
   describe('/reservations/byResNumber (GET)', () => {
     it('should return 0 ', async () => {
-      /*   const mockResponse: {
-        bonusRes: AggReservation[];
-        payableRes: AggReservation[];
-      } = {} as {
-        bonusRes: AggReservation[];
-        payableRes: AggReservation[];
-      };
-      jest
-        .spyOn(reservationsService, 'getReservationsByResNumber')
-        .mockResolvedValue(
-          reservationsService.getReservationsByResNumber(1000000),
-        );
- */
       const response = await request(app.getHttpServer())
         .get(`/reservations/byResNumber/1000000`)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200);
       const data: {
         bonusRes: AggReservation[];
@@ -58,19 +56,9 @@ describe('ReservationsController (e2e)', () => {
     });
 
     it('should return 3 payable reservations ', async () => {
-      /*       const mockResponse: {
-        bonusRes: AggReservation[];
-        payableRes: AggReservation[];
-      } = {} as {
-        bonusRes: AggReservation[];
-        payableRes: AggReservation[];
-      };
-      jest
-        .spyOn(reservationsService, 'getReservationsByResNumber')
-        .mockResolvedValue(reservationsService.getReservationsByResNumber(10));
- */
       const response = await request(app.getHttpServer())
         .get(`/reservations/byResNumber/10`)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200);
 
       const data: {
@@ -78,32 +66,20 @@ describe('ReservationsController (e2e)', () => {
         payableRes: AggReservation[];
       } = response.body;
 
-      // expect(response.body).toEqual(mockResponse);
       expect(data.bonusRes.length).toBe(0);
       expect(data.payableRes.length).toBe(4);
     });
 
     it('should return 2 bonusreservations and 4 payable reservations ', async () => {
-      /* const mockResponse: {
-        bonusRes: AggReservation[];
-        payableRes: AggReservation[];
-      } = {} as {
-        bonusRes: AggReservation[];
-        payableRes: AggReservation[];
-      };
-      jest
-        .spyOn(reservationsService, 'getReservationsByResNumber')
-        .mockResolvedValue(mockResponse); */
-
       const response = await request(app.getHttpServer())
         .get(`/reservations/byResNumber/1`)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200);
       const data: {
         bonusRes: AggReservation[];
         payableRes: AggReservation[];
       } = response.body;
 
-      // expect(response.body).toEqual(mockResponse);
       expect(data.bonusRes.length).toBe(2);
       expect(data.payableRes.length).toBe(4);
     });
@@ -113,6 +89,7 @@ describe('ReservationsController (e2e)', () => {
     it('should return 400 when path is not a number ', async () => {
       const response = await request(app.getHttpServer())
         .get(`/reservations/byResNumber/1s`)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400);
 
       expect(response.body).toEqual({

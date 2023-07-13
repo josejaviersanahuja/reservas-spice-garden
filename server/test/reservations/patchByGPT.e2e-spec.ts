@@ -1,13 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  INestApplication,
-  BadRequestException,
-  NotFoundException,
-  ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
-import { ReservationsService } from '../../src/components/reservations/reservations.service';
 import {
   ReservationPatchDTO,
   AggReservation,
@@ -16,7 +10,7 @@ import { pg } from '../pg';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
-  let reservationsService: ReservationsService;
+  let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -25,10 +19,19 @@ describe('ReservationsController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    reservationsService =
-      moduleFixture.get<ReservationsService>(ReservationsService);
+
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
+    const loginPayload = {
+      username: 'reception',
+      password: '123456',
+    };
+
+    const respose = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginPayload);
+
+    jwt = respose.body.access_token;
   });
 
   afterAll(async () => {
@@ -39,40 +42,32 @@ describe('ReservationsController (e2e)', () => {
 
   describe('/reservations/:id (PATCH)', () => {
     it('should return 200 when updating an existing reservation', async () => {
-      const reservationId = 1;
+      const reservationId = 220;
       const reservationPatchData: ReservationPatchDTO = {
-        // Provide the necessary data for updating the reservation
         cost: 200,
       };
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
         .send(reservationPatchData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200);
 
       const data: AggReservation = response.body;
 
       expect(data.cost).toBe(200);
-      // expect(response.body).toEqual(mockResponse); // @TODO Update this assertion
     });
 
     it('should return 400 when updating a reservation in the past', async () => {
       const reservationId = 1;
       const reservationPatchData: ReservationPatchDTO = {
-        // Provide the necessary data for updating the reservation
+        cost: 200,
       };
-
-      jest
-        .spyOn(reservationsService, 'updateReservation')
-        .mockRejectedValue(
-          new BadRequestException(
-            'The reservation you are trying to update is in the past',
-          ),
-        );
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
         .send(reservationPatchData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400);
 
       expect(response.body).toEqual({
@@ -83,23 +78,20 @@ describe('ReservationsController (e2e)', () => {
     });
 
     it('should return 404 when updating a non-existing reservation', async () => {
-      const reservationId = 100;
+      const reservationId = 1000000;
       const reservationPatchData: ReservationPatchDTO = {
-        // Provide the necessary data for updating the reservation
+        cost: 200,
       };
-
-      jest
-        .spyOn(reservationsService, 'updateReservation')
-        .mockRejectedValue(new NotFoundException('Reservation not found'));
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
         .send(reservationPatchData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(404);
 
       expect(response.body).toEqual({
         statusCode: 404,
-        message: 'Reservation not found',
+        message: 'Not found: No record updated',
         error: 'Not Found',
       });
     });

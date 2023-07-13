@@ -10,6 +10,7 @@ import {
 
 describe('RestaurantThemesController (e2e)', () => {
   let app: INestApplication;
+  let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -20,6 +21,16 @@ describe('RestaurantThemesController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
+    const loginPayload = {
+      username: 'reception',
+      password: '123456',
+    };
+
+    const respose = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginPayload);
+
+    jwt = respose.body.access_token;
   });
 
   afterAll(async () => {
@@ -39,6 +50,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/restaurant-themes')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(201)
         .expect((response) => {
           const createdRestaurantTheme: RestaurantTheme = response.body;
@@ -64,6 +76,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/restaurant-themes')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(201)
         .expect((response) => {
           const createdRestaurantTheme: RestaurantTheme = response.body;
@@ -88,6 +101,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/restaurant-themes')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const createdRestaurantTheme = response.body;
@@ -105,6 +119,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .post('/restaurant-themes')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const createdRestaurantTheme = response.body;

@@ -7,6 +7,7 @@ import { pg } from '../pg';
 
 describe('Restaurant Themes Controller (e2e)', () => {
   let app: INestApplication;
+  let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -16,6 +17,16 @@ describe('Restaurant Themes Controller (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    const loginPayload = {
+      username: 'reception',
+      password: '123456',
+    };
+
+    const respose = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginPayload);
+
+    jwt = respose.body.access_token;
   });
 
   afterAll(async () => {
@@ -27,6 +38,7 @@ describe('Restaurant Themes Controller (e2e)', () => {
     it('should return an array of Restaurant Themes', () => {
       return request(app.getHttpServer())
         .get('/restaurant-themes')
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const restaurantThemes: PureRestaurantTheme[] = response.body;

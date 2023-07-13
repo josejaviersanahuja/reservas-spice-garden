@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import {
@@ -22,9 +23,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { MEAL_PLAN, ROOM_OPTIONS, TIME_OPTIONS } from '../../../src/app.schema';
+import { AuthGuard } from '@nestjs/passport';
+import { JWT_STRATEGY } from '../../config';
 
 @ApiTags('reservations')
 @Controller('reservations')
+@UseGuards(AuthGuard(JWT_STRATEGY))
 export class ReservationsController {
   constructor(private reservationService: ReservationsService) {}
 

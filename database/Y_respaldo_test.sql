@@ -1324,9 +1324,11 @@ DECLARE
   updated reservations;
   response JSON;
   stack_info TEXT;
+  fecha_reserva DATE;
 BEGIN
   BEGIN
-    IF _fecha < CURRENT_DATE THEN
+    fecha_reserva := COALESCE(_fecha, (SELECT fecha FROM reservations WHERE id = _id));
+    IF fecha_reserva < CURRENT_DATE THEN
       response := json_build_object(
         'isError', TRUE,
         'message', 'Bad request: No record inserted - Date is in the past',

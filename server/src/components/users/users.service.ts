@@ -28,8 +28,6 @@ export class UsersService {
     const query = UsersPatchQueryBuilder(id, dto); // fix this and import
     const { rows } = await this.pg.query(query);
     const res: PostgresCrudService<PureUser> = rows[0].result;
-    // console.log(res, 'DEBBUGING');
-
     if (res.isError) {
       if (!res.message) {
         throw new Error(res.stack);

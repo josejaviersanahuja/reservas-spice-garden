@@ -10,6 +10,7 @@ import {
 
 describe('RestaurantThemesController (e2e)', () => {
   let app: INestApplication;
+  let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -24,6 +25,16 @@ describe('RestaurantThemesController (e2e)', () => {
       }),
     );
     await app.init();
+    const loginPayload = {
+      username: 'reception',
+      password: '123456',
+    };
+
+    const respose = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginPayload);
+
+    jwt = respose.body.access_token;
   });
 
   afterAll(async () => {
@@ -43,6 +54,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/1')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const updatedRestaurantTheme: RestaurantTheme = response.body;
@@ -67,6 +79,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/1')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const updatedRestaurantTheme: RestaurantTheme = response.body;
@@ -91,6 +104,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/1')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const updatedRestaurantTheme: RestaurantTheme = response.body;
@@ -115,6 +129,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/1')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const updatedRestaurantTheme: RestaurantTheme = response.body;
@@ -139,6 +154,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/1')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const updatedRestaurantTheme = response.body;
@@ -156,6 +172,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/1')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const updatedRestaurantTheme = response.body;
@@ -169,6 +186,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/1')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const updatedRestaurantTheme = response.body;
@@ -186,6 +204,7 @@ describe('RestaurantThemesController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/restaurant-themes/100')
         .send(restaurantThemeData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(404)
         .expect((response) => {
           const updatedRestaurantTheme = response.body;

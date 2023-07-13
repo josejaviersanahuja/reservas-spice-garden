@@ -19,6 +19,7 @@ export class AuthController {
   @UseGuards(AuthGuard(LOCAL_STRATEGY))
   login(@Req() req: Request) {
     const user: PureUser = req.user as PureUser;
+
     return this.authService.login(user);
   }
 }

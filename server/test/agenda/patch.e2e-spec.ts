@@ -7,6 +7,7 @@ import { Agenda, AgendaPatchDTO } from 'src/components/agenda/agenda.schema';
 
 describe('AgendaController (e2e)', () => {
   let app: INestApplication;
+  let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -21,6 +22,16 @@ describe('AgendaController (e2e)', () => {
       }),
     );
     await app.init();
+    const loginPayload = {
+      username: 'reception',
+      password: '123456',
+    };
+
+    const respose = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send(loginPayload);
+
+    jwt = respose.body.access_token;
   });
 
   afterAll(async () => {
@@ -47,14 +58,18 @@ describe('AgendaController (e2e)', () => {
         '21:45': 2,
       };
 
-      await request(app.getHttpServer()).post('/agenda').send({
-        fecha: '2030-12-30',
-        restaurantThemeId: 1,
-      });
+      await request(app.getHttpServer())
+        .post('/agenda')
+        .send({
+          fecha: '2030-12-30',
+          restaurantThemeId: 1,
+        })
+        .set('Authorization', `Bearer ${jwt}`);
 
       return request(app.getHttpServer())
         .patch('/agenda/2030-12-30')
         .send(agendaData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const updatedAgenda: Agenda = response.body;
@@ -79,14 +94,18 @@ describe('AgendaController (e2e)', () => {
         '19:45': 2,
       };
 
-      await request(app.getHttpServer()).post('/agenda').send({
-        fecha: '2030-12-31',
-        restaurantThemeId: 1,
-      });
+      await request(app.getHttpServer())
+        .post('/agenda')
+        .send({
+          fecha: '2030-12-31',
+          restaurantThemeId: 1,
+        })
+        .set('Authorization', `Bearer ${jwt}`);
 
       return request(app.getHttpServer())
         .patch('/agenda/2030-12-31')
         .send(agendaData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const updatedAgenda: Agenda = response.body;
@@ -103,6 +122,7 @@ describe('AgendaController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/agenda/2030-12-31')
         .send(agendaData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const updatedAgenda = response.body;
@@ -118,6 +138,7 @@ describe('AgendaController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/agenda/2020-12-31')
         .send(agendaData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const updatedAgenda = response.body;
@@ -131,6 +152,7 @@ describe('AgendaController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/agenda/2030-12-31')
         .send(agendaData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const updatedAgenda = response.body;
@@ -146,6 +168,7 @@ describe('AgendaController (e2e)', () => {
       return request(app.getHttpServer())
         .patch('/agenda/2031-12-31')
         .send(agendaData)
+        .set('Authorization', `Bearer ${jwt}`)
         .expect(404)
         .expect((response) => {
           const updatedRestaurantTheme = response.body;

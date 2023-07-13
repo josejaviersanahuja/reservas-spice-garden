@@ -4,6 +4,7 @@ import Pool from 'pg-pool';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PureUser } from '../users/users.schema';
+import { LoginResponse, PayloadToken } from './auth.schema';
 
 @Injectable()
 export class AuthService {
@@ -30,10 +31,8 @@ export class AuthService {
     return user;
   }
 
-  async login(
-    user: PureUser,
-  ): Promise<{ access_token: string; user: PureUser }> {
-    const payload = { username: user.username, sub: user.id };
+  async login(user: PureUser): Promise<LoginResponse> {
+    const payload: PayloadToken = { username: user.username, sub: user.id };
     return {
       access_token: await this.jwtService.signAsync(payload),
       user,

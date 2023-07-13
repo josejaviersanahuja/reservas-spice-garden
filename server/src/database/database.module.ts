@@ -2,6 +2,7 @@ import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import * as Pool from 'pg-pool';
 import config, { ENVIROMENT_FILE } from '../config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Global()
 @Module({
@@ -10,6 +11,14 @@ import config, { ENVIROMENT_FILE } from '../config';
       envFilePath: ENVIROMENT_FILE,
       load: [config],
       isGlobal: true,
+    }),
+    JwtModule.registerAsync({
+      inject: [config.KEY],
+      useFactory: (configService: ConfigType<typeof config>) => ({
+        global: true,
+        secret: configService.jwtSecret,
+        signOptions: { expiresIn: '1d' },
+      }),
     }),
   ],
   providers: [
@@ -25,6 +34,17 @@ import config, { ENVIROMENT_FILE } from '../config';
         });
         await pg.connect();
         return pg;
+      },
+      inject: [config.KEY],
+    },
+    {
+      provide: 'jwt',
+      useFactory: async (configService: ConfigType<typeof config>) => {
+        return {
+          global: true,
+          secret: configService.jwtSecret,
+          signOptions: { expiresIn: '1d' },
+        };
       },
       inject: [config.KEY],
     },
