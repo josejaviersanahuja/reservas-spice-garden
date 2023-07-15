@@ -8,6 +8,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalGuards(new ApiKeyGuard());
+  app.enableCors({
+    methods: 'GET,PUT,PATCH,POST',
+    origin: new RegExp(process.env.CORS_ORIGIN + '$'),
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Spice Garden API')

@@ -1,4 +1,5 @@
 import { Head } from "$fresh/runtime.ts";
+import Header from "../components/Header.tsx";
 import ProtectedRoute from "../islands/ProtectedRoute.tsx";
 
 export default function Home() {
@@ -9,7 +10,8 @@ export default function Home() {
         <title>Reserv</title>
       </Head>
       <ProtectedRoute />
-      <div class="p-4 mx-auto max-w-screen-md">
+      <Header />
+      <div class="pt-24 px-4 mx-auto max-w-screen-md">
         <p class="my-6">
           Welcome to `fresh`. Try updating this message in the
           ./routes/index.tsx file, and refresh.
