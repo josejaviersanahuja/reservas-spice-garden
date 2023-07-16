@@ -1,6 +1,9 @@
 import { useEffect } from "preact/hooks";
+import { userSignedIn } from "../utils/signals.ts";
 
 export default function ProtectedRoute() {
+  console.log(userSignedIn);
+  
   useEffect(() => {
     // get localstorage.access_token_sg and current path
     const access_token_sg = localStorage.getItem("access_token_sg");

@@ -3,10 +3,11 @@ interface Props {
 }
 
 export default function NavButtons({isToggle}: Props) {
-  const clase = isToggle ? "absolute top-24 right-3 flex flex-col gap-x-12" : "hidden lg:flex lg:gap-x-12";
+  const mainClass = isToggle ? "absolute top-20 right-3 flex flex-col gap-x-12 items-end" : "hidden lg:flex lg:gap-x-12";
+  const loginClass = isToggle ? "absolute top-44 right-3 flex flex-col gap-x-12 items-end" : "hidden lg:flex lg:flex-1 lg:justify-end";
   return (
     <>
-      <div class={clase}>
+      <div class={mainClass}>
         <div class="relative">
           <button
             type="button"
@@ -27,7 +28,7 @@ export default function NavButtons({isToggle}: Props) {
           Demo
         </a>
       </div>
-      <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+      <div class={loginClass}>
         <a
           href="/login"
           class="text-sm font-semibold leading-6 text-gray-900"

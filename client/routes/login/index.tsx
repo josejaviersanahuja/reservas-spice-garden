@@ -1,9 +1,28 @@
+import { Handlers } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
 import LoginForm from "../../islands/LoginForm.tsx";
+import { useEffect } from "preact/hooks";
 
+export interface LoginProps {
+  API_URL: string;
+  API_KEY: string;
+}
 
-export default function Login() {
+export const handler: Handlers = {
+  GET(req, ctx) {
+    const API_KEY = Deno.env.get("API_KEY");
+    const API_URL = Deno.env.get("API_URL");
+    if (typeof API_KEY !== "string" || typeof API_URL !== "string") {
+      console.log("API_KEY or API_URL is not defined");
+    }
+    return ctx.render({API_KEY, API_URL});
+  },
+};
 
+export default function Login({API_KEY, API_URL}: LoginProps) {
+  useEffect(() => {
+    throw new Error("Error");
+  }, []);
   return (
     <>
       <Head>
@@ -22,7 +41,6 @@ export default function Login() {
             </h2>
           </div>
           <LoginForm />
-          
         </div>
       </main>
     </>

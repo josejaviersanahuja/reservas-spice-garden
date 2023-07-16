@@ -1,11 +1,13 @@
-import { useRef } from "preact/hooks";
-
+import { useRef, useState } from "preact/hooks";
+import { userSignedIn } from "../utils/signals.ts";
 import { config } from "../config.ts";
+import { User } from "../schemas/users.ts";
 
 export default function LoginForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-
+  const [errorMessage, setErrorMesage] = useState("");
+  
   const handleSubmit = (
     event: Event,
   ) => {
@@ -13,7 +15,7 @@ export default function LoginForm() {
     const username = usernameRef.current?.value;
     const password = passwordRef.current?.value;
     if (username && password) {
-      fetch(`${config.apiUrl}/auth/logi`, {
+      fetch(`${config.apiUrl}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -25,11 +27,20 @@ export default function LoginForm() {
           if (data.statusCode) {
             throw data;
           }
-          console.log(data);
+          usernameRef.current!.value = "";
+          passwordRef.current!.value = "";
           localStorage.setItem("access_token_sg", data.access_token);
+          userSignedIn.value = data.user as User;
+          console.log("user", userSignedIn);
+          window.location.href = "/";
+        })
+        .catch((error) => {
+          setErrorMesage(error.message + " - statusCode " + error.statusCode);
         });
     }
   };
+  console.log("user", userSignedIn);
+  
   return (
     <>
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -85,6 +96,11 @@ export default function LoginForm() {
             </button>
           </div>
         </form>
+        {errorMessage && (
+          <div class="mt-4 text-center">
+            <p class="text-base font-semibold text-red-600">{errorMessage}</p>
+          </div>
+        )}
       </div>
     </>
   );

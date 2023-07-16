@@ -4,10 +4,9 @@
 
 import * as $0 from "./routes/_404.tsx";
 import * as $1 from "./routes/_500.tsx";
-import * as $2 from "./routes/api/joke.ts";
-import * as $3 from "./routes/error/index.tsx";
-import * as $4 from "./routes/index.tsx";
-import * as $5 from "./routes/login/index.tsx";
+import * as $2 from "./routes/api/auth/login.ts";
+import * as $3 from "./routes/index.tsx";
+import * as $4 from "./routes/login/index.tsx";
 import * as $$0 from "./islands/LoginForm.tsx";
 import * as $$1 from "./islands/ProtectedRoute.tsx";
 import * as $$2 from "./islands/ToggledMenu.tsx";
@@ -16,10 +15,9 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $0,
     "./routes/_500.tsx": $1,
-    "./routes/api/joke.ts": $2,
-    "./routes/error/index.tsx": $3,
-    "./routes/index.tsx": $4,
-    "./routes/login/index.tsx": $5,
+    "./routes/api/auth/login.ts": $2,
+    "./routes/index.tsx": $3,
+    "./routes/login/index.tsx": $4,
   },
   islands: {
     "./islands/LoginForm.tsx": $$0,

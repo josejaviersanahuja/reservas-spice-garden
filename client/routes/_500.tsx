@@ -1,12 +1,21 @@
-import { ErrorPageProps } from "$fresh/server.ts";
+import { ErrorPageProps, Handlers } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
 
-export default function _500({ error }: ErrorPageProps) {
+export const handler: Handlers = {
+  GET(req, ctx) {
+    console.log(req);
+    console.log(ctx);
+    
+    return ctx.render();
+  },
+};
+
+export default function Error500Page({ error }: ErrorPageProps) {
   let statusCode = 500;
   let errorCode = "Error interno del servidor"
   let message = "Internal Server Error";
-  if (typeof error === "object" && error !== null && "statusCode" in error && typeof error.statusCode === "number") {
-    statusCode = error.statusCode;
+  if (typeof error === "object" && error !== null && "status" in error && typeof error.status === "number") {
+    statusCode = error.status;
   }
   if (typeof error === "object" && error !== null && "message" in error && typeof error.message === "string") {
     message = error.message;
