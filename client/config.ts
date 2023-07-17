@@ -1,9 +1,9 @@
-export interface Config {
+export interface ConfigApp {
+  apiKey: string;
   apiUrl: string;
-  akiKey: string;
 }
 
-export const config: Config = {
-  apiUrl: 'http://localhost:3000',
-  akiKey: 'AgdfgDFGFDgdGWERQWy_RYujuukjRTGB12DFG2DF43G54A', // @TODO: change this
+export const config: ConfigApp = {
+  apiKey: process.env.NEXT_PUBLIC_API_KEY || "",
+  apiUrl: process.env.NEXT_PUBLIC_API_URL || "",
 };
