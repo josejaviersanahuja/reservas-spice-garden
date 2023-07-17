@@ -1,6 +1,7 @@
 import { useState, useRef, FormEvent } from "react";
-import { config } from "../../../config";
 import { useRouter } from "next/navigation";
+import {setCookie} from 'cookies-next';
+import { config } from "../../../config";
 
 export default function useLoginForm() {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -29,7 +30,11 @@ export default function useLoginForm() {
             throw data;
           }
           localStorage.setItem("access_token_sg", data.access_token);
-
+          setCookie("access_token_sg", data.access_token, {
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+            path: "/",
+            httpOnly: true,
+          });
           console.log("user", data);
           router.replace("/");
         })

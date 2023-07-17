@@ -8,8 +8,7 @@ export function NavigationEvents() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const url = `${pathname}?${searchParams}`;
-    console.log(url);
+    // const url = `${pathname}?${searchParams}`;
     // You can now use the current URL
     // ...
     if ("startViewTransition" in document) {

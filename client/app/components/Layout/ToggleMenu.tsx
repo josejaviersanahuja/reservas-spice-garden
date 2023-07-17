@@ -1,8 +1,10 @@
+"use client"
 import { useState } from "react";
 import NavButtons from "./NavButtons";
 
 export default function ToggleMenu() {
   const [openMenu, setOpenMenu] = useState(false);
+
   return (
     <>
       <div className="flex lg:hidden">
