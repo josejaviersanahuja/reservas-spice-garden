@@ -11,7 +11,7 @@ import {
 
 describe('AgendaController (e2e)', () => {
   let app: INestApplication;
-  let jwt: string;
+  // let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -26,7 +26,7 @@ describe('AgendaController (e2e)', () => {
       }),
     );
     await app.init();
-    const loginPayload = {
+    /* const loginPayload = {
       username: 'reception',
       password: '123456',
     };
@@ -35,7 +35,7 @@ describe('AgendaController (e2e)', () => {
       .post('/auth/login')
       .send(loginPayload);
 
-    jwt = respose.body.access_token;
+    jwt = respose.body.access_token; */
   });
 
   afterAll(async () => {
@@ -60,8 +60,7 @@ describe('AgendaController (e2e)', () => {
 
       return request(app.getHttpServer())
         .patch('/users/2')
-        .send(userData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(userData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const updatedUser: PureUser = response.body;
@@ -83,8 +82,7 @@ describe('AgendaController (e2e)', () => {
 
       return request(app.getHttpServer())
         .patch('/users/2')
-        .send(userData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(userData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect(async () => {
           const { rows } = await pg.query('SELECT * FROM users WHERE id = 2');
@@ -107,8 +105,7 @@ describe('AgendaController (e2e)', () => {
 
       return request(app.getHttpServer())
         .patch('/users/2')
-        .send(userData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(userData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const updatedUser = response.body;
@@ -123,8 +120,7 @@ describe('AgendaController (e2e)', () => {
 
       return request(app.getHttpServer())
         .patch('/users/666')
-        .send(userData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(userData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(404)
         .expect((response) => {
           const updatedRestaurantTheme = response.body;

@@ -6,7 +6,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { RestaurantThemeService } from './restaurant-themes.service';
@@ -15,11 +14,8 @@ import {
   RestaurantThemePutDTO,
 } from './restaurant-themes.schema';
 import { ValidateRestaurantThemesPutDTOPipe } from './restaurant-themes.pipe';
-import { AuthGuard } from '@nestjs/passport';
-import { JWT_STRATEGY } from '../../config';
 
 @ApiTags('restaurant-themes')
-@UseGuards(AuthGuard(JWT_STRATEGY))
 @Controller('restaurant-themes')
 export class RestaurantThemesController {
   constructor(private rtService: RestaurantThemeService) {}

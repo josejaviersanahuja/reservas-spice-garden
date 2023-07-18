@@ -7,7 +7,7 @@ import { pg } from '../pg';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
-  let jwt: string;
+  // let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -18,7 +18,7 @@ describe('ReservationsController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
-    const loginPayload = {
+    /* const loginPayload = {
       username: 'reception',
       password: '123456',
     };
@@ -27,7 +27,7 @@ describe('ReservationsController (e2e)', () => {
       .post('/auth/login')
       .send(loginPayload);
 
-    jwt = respose.body.access_token;
+    jwt = respose.body.access_token; */
   });
 
   afterAll(async () => {
@@ -41,8 +41,7 @@ describe('ReservationsController (e2e)', () => {
       const fecha = '2023-06-15';
 
       return request(app.getHttpServer())
-        .get(`/reservations/byDate?fecha0=${fecha}`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/reservations/byDate?fecha0=${fecha}`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const numAgendas = response.body.numAgendas;
@@ -71,8 +70,7 @@ describe('ReservationsController (e2e)', () => {
       const fecha = '2023-07-01';
 
       return request(app.getHttpServer())
-        .get(`/reservations/byDate?fecha0=${fecha}`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/reservations/byDate?fecha0=${fecha}`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const numAgendas = response.body.numAgendas;

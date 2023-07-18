@@ -5,18 +5,14 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 import { ValidateUserPatchDTOPipe } from './users.pipe';
 import { PureUser, UserPatchDTO } from './users.schema';
-import { JWT_STRATEGY } from '../../config';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users')
-@UseGuards(AuthGuard(JWT_STRATEGY))
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}

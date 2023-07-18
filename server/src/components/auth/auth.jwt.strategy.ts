@@ -1,7 +1,6 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 
 import config, { JWT_STRATEGY } from '../../config';
@@ -9,11 +8,14 @@ import { PayloadToken } from './auth.schema';
 import { UsersService } from '../users/users.service';
 import { PureUser } from '../users/users.schema';
 
+/**
+ * @deprecated
+ * Resulta que por la arquitectura del frontend, usamos SSR con nextjs y no podemos usar el jwt guardado en el cliente
+ */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, JWT_STRATEGY) {
   constructor(
     private userService: UsersService,
-    private jwtService: JwtService,
     @Inject(config.KEY) configService: ConfigType<typeof config>,
   ) {
     super({

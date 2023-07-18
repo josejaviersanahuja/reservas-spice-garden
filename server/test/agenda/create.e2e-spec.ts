@@ -10,7 +10,7 @@ import {
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
-  let jwt: string;
+  // let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -21,7 +21,7 @@ describe('ReservationsController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
-    const loginPayload = {
+    /* const loginPayload = {
       username: 'reception',
       password: '123456',
     };
@@ -30,7 +30,7 @@ describe('ReservationsController (e2e)', () => {
       .post('/auth/login')
       .send(loginPayload);
 
-    jwt = respose.body.access_token;
+    jwt = respose.body.access_token; */
   });
 
   afterAll(async () => {
@@ -49,8 +49,7 @@ describe('ReservationsController (e2e)', () => {
 
       return request(app.getHttpServer())
         .post('/agenda')
-        .send(agendaData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(agendaData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(201)
         .expect((response) => {
           const createdAgenda: Agenda = response.body;
@@ -67,8 +66,7 @@ describe('ReservationsController (e2e)', () => {
 
       return request(app.getHttpServer())
         .post('/agenda')
-        .send(agendaData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(agendaData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const createdReservation = response.body;
@@ -87,8 +85,7 @@ describe('ReservationsController (e2e)', () => {
 
       return request(app.getHttpServer())
         .post('/agenda')
-        .send(agendaData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(agendaData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const createdReservation = response.body;

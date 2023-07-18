@@ -1,13 +1,10 @@
-import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
-import { JWT_STRATEGY } from '../../config';
 import { ReportsService } from './reports.service';
 import { ValidateStringDatePipe } from '../../app.pipes';
 
 @ApiTags('reports')
-@UseGuards(AuthGuard(JWT_STRATEGY))
 @Controller('reports')
 export class ReportsController {
   constructor(private reportsService: ReportsService) {}

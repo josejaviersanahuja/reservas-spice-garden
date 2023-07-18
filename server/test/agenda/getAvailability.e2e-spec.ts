@@ -7,7 +7,7 @@ import { pg } from '../pg';
 
 describe('Agenda Controller (e2e)', () => {
   let app: INestApplication;
-  let jwt: string;
+  // let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -18,7 +18,7 @@ describe('Agenda Controller (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
-    const loginPayload = {
+    /* const loginPayload = {
       username: 'reception',
       password: '123456',
     };
@@ -27,7 +27,7 @@ describe('Agenda Controller (e2e)', () => {
       .post('/auth/login')
       .send(loginPayload);
 
-    jwt = respose.body.access_token;
+    jwt = respose.body.access_token; */
   });
 
   afterAll(async () => {
@@ -41,8 +41,7 @@ describe('Agenda Controller (e2e)', () => {
       const fecha = '2023-06-15';
 
       return request(app.getHttpServer())
-        .get(`/agenda/${fecha}/availability/19:00`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/agenda/${fecha}/availability/19:00`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(404)
         .expect((response) => {
           const reservation = response.body;
@@ -53,8 +52,7 @@ describe('Agenda Controller (e2e)', () => {
       const fecha = '2023-07-01';
 
       return request(app.getHttpServer())
-        .get(`/agenda/${fecha}/availability/19:30`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/agenda/${fecha}/availability/19:30`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const res: Availability = response.body;
@@ -73,8 +71,7 @@ describe('Agenda Controller (e2e)', () => {
       const hora = '19:30';
 
       return request(app.getHttpServer())
-        .get(`/agenda/${fecha}/availability/${hora}`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/agenda/${fecha}/availability/${hora}`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const res = response.body;
@@ -87,8 +84,7 @@ describe('Agenda Controller (e2e)', () => {
       const hora = '10:00';
 
       return request(app.getHttpServer())
-        .get(`/agenda/${fecha}/availability/${hora}`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/agenda/${fecha}/availability/${hora}`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const res = response.body;

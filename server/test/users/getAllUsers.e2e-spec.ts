@@ -7,7 +7,7 @@ import { pg } from '../pg';
 
 describe('Users Controller (e2e)', () => {
   let app: INestApplication;
-  let jwt: string;
+  // let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -17,7 +17,7 @@ describe('Users Controller (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    const loginPayload = {
+    /* const loginPayload = {
       username: 'reception',
       password: '123456',
     };
@@ -26,7 +26,7 @@ describe('Users Controller (e2e)', () => {
       .post('/auth/login')
       .send(loginPayload);
 
-    jwt = respose.body.access_token;
+    jwt = respose.body.access_token; */
   });
 
   afterAll(async () => {
@@ -38,8 +38,7 @@ describe('Users Controller (e2e)', () => {
   describe('/users (GET)', () => {
     it('should return 200 with an array of users', () => {
       return request(app.getHttpServer())
-        .get('/users')
-        .set('Authorization', `Bearer ${jwt}`)
+        .get('/users') //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const users: PureUser[] = response.body;

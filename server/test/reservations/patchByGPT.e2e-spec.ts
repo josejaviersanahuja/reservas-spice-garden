@@ -10,7 +10,7 @@ import { pg } from '../pg';
 
 describe('ReservationsController (e2e)', () => {
   let app: INestApplication;
-  let jwt: string;
+  // let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -22,7 +22,7 @@ describe('ReservationsController (e2e)', () => {
 
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
-    const loginPayload = {
+    /* const loginPayload = {
       username: 'reception',
       password: '123456',
     };
@@ -31,7 +31,7 @@ describe('ReservationsController (e2e)', () => {
       .post('/auth/login')
       .send(loginPayload);
 
-    jwt = respose.body.access_token;
+    jwt = respose.body.access_token; */
   });
 
   afterAll(async () => {
@@ -49,8 +49,7 @@ describe('ReservationsController (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
-        .send(reservationPatchData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(reservationPatchData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200);
 
       const data: AggReservation = response.body;
@@ -66,8 +65,7 @@ describe('ReservationsController (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
-        .send(reservationPatchData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(reservationPatchData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(400);
 
       expect(response.body).toEqual({
@@ -85,8 +83,7 @@ describe('ReservationsController (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .patch(`/reservations/${reservationId}`)
-        .send(reservationPatchData)
-        .set('Authorization', `Bearer ${jwt}`)
+        .send(reservationPatchData) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(404);
 
       expect(response.body).toEqual({

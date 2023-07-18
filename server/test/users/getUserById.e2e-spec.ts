@@ -7,7 +7,7 @@ import { pg } from '../pg';
 
 describe('Users Controller (e2e)', () => {
   let app: INestApplication;
-  let jwt: string;
+  // let jwt: string;
 
   beforeAll(async () => {
     await pg.query('CALL seed()');
@@ -17,7 +17,7 @@ describe('Users Controller (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    const loginPayload = {
+    /* const loginPayload = {
       username: 'reception',
       password: '123456',
     };
@@ -26,7 +26,7 @@ describe('Users Controller (e2e)', () => {
       .post('/auth/login')
       .send(loginPayload);
 
-    jwt = respose.body.access_token;
+    jwt = respose.body.access_token; */
   });
 
   afterAll(async () => {
@@ -40,8 +40,7 @@ describe('Users Controller (e2e)', () => {
       const id = 1;
 
       return request(app.getHttpServer())
-        .get(`/users/${id}`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/users/${id}`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(200)
         .expect((response) => {
           const user: PureUser = response.body;
@@ -55,8 +54,7 @@ describe('Users Controller (e2e)', () => {
       const id = 100; // Assuming this id does not exist
 
       return request(app.getHttpServer())
-        .get(`/users/${id}`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/users/${id}`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(404)
         .expect((response) => {
           const errorResponse = response.body;
@@ -69,8 +67,7 @@ describe('Users Controller (e2e)', () => {
       const id = 'abc'; // Not a valid number
 
       return request(app.getHttpServer())
-        .get(`/users/${id}`)
-        .set('Authorization', `Bearer ${jwt}`)
+        .get(`/users/${id}`) //  .set('Authorization', `Bearer ${jwt}`)
         .expect(400)
         .expect((response) => {
           const errorResponse = response.body;
