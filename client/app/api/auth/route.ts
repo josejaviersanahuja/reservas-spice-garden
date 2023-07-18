@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     if (done) break;
     body += decoder.decode(value);
   }
-  
+
   return new Response("Hello from route", {
     status: 200,
     headers: {

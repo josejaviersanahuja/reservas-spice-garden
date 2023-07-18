@@ -26,6 +26,11 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+/*@TODO 26 px equivale a footer y 96px equivale a header. UPDATE FOOTER px*/
+.min-h-custom-body {
+  min-height: calc(100vh - 96px - 26px);
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   position: absolute;

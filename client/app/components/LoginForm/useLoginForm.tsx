@@ -1,6 +1,8 @@
 import { useState, useRef, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { setCookie, getCookie } from "cookies-next";
+import { Zoom, toast } from "react-toastify";
+
 import { config } from "../../../config";
 import useAuthStore from "@/stores/authStore";
 
@@ -9,8 +11,22 @@ export default function useLoginForm() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const [errorMessage, setErrorMesage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const {user, isAuth, setUser} = useAuthStore((state) => state);
-  
+  const { isAuth, setUser } = useAuthStore((state) => state);
+  const notifySuccess = (message: string) =>
+    toast(message, {
+      position: "bottom-right",
+      theme: "dark",
+      transition: Zoom,
+      autoClose: 2300,
+    });
+  const notifyError = (message: string) =>
+    toast.error(message, {
+      position: "bottom-right",
+      theme: "dark",
+      transition: Zoom,
+      autoClose: 4000,
+    });
+
   let router = useRouter();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -36,9 +52,11 @@ export default function useLoginForm() {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
           });
           setUser(data.user);
+          notifySuccess("Bienvenido " + data.user.username);
           router.replace("/");
         })
         .catch((error) => {
+          notifyError(error.message + " - statusCode " + error.statusCode);
           setErrorMesage(error.message + " - statusCode " + error.statusCode);
         })
         .finally(() => {
@@ -51,13 +69,11 @@ export default function useLoginForm() {
 
   useEffect(() => {
     if (isAuth) {
-      
       router.replace("/");
     }
     const token = getCookie("access_token_sg");
     if (!token) {
-      
-      return
+      return;
     } else {
       setIsLoading(true);
       fetch(`${config.apiUrl}/auth/login`, {
@@ -65,7 +81,7 @@ export default function useLoginForm() {
         headers: {
           "Content-Type": "application/json",
           apikey: config.apiKey,
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       })
         .then((response) => response.json())
@@ -73,11 +89,13 @@ export default function useLoginForm() {
           if (data.statusCode) {
             throw data;
           }
-          
+
           setUser(data);
+          notifySuccess("Login Automático: Bienvenido " + data.username);
           router.replace("/");
         })
         .catch((error) => {
+          notifyError(error.message + " - statusCode " + error.statusCode);
           setErrorMesage(error.message + " - statusCode " + error.statusCode);
         })
         .finally(() => {
@@ -85,8 +103,8 @@ export default function useLoginForm() {
         });
     }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { isLoading, errorMessage, usernameRef, passwordRef, handleSubmit };
 }

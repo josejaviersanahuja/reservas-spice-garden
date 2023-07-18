@@ -6,7 +6,7 @@ import useAuthStore from "@/stores/authStore";
 export default function ToggleMenu() {
   const [openMenu, setOpenMenu] = useState(false);
   const user = useAuthStore((state) => state.user);
-  
+
   return (
     <>
       <div className="flex lg:hidden">

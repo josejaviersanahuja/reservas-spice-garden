@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { NavigationEvents } from "./components/NavigationEvents";
 import { Suspense } from "react";
 import Layout from "./components/Layout";
+import { BasicToast } from "./components/BasicToast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <Layout>{children}</Layout>
         <Suspense fallback={null}>
           <NavigationEvents />
+          <BasicToast />
         </Suspense>
       </body>
     </html>

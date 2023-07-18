@@ -1,26 +1,27 @@
-"use client"
+"use client";
 import Link from "next/link";
-import useAuthStore from "@/stores/authStore";
+import useLogout from "./useLogout";
 
 export default function LoginButton() {
-  const {isAuth, setUser} = useAuthStore((state) => state);
+  const { isAuth, logout } = useLogout();
+
   if (isAuth) {
     return (
       <button
         type="button"
         className="text-sm font-semibold leading-6 text-gray-900"
-        onClick={()=> setUser(null)}
+        onClick={logout}
       >
         Log out <span aria-hidden="true">&rarr;</span>
       </button>
-    )  
+    );
   }
   return (
     <Link
-          href="/login"
-          className="text-sm font-semibold leading-6 text-gray-900"
-        >
-          Log in <span aria-hidden="true">&rarr;</span>
-        </Link>
-  )
+      href="/login"
+      className="text-sm font-semibold leading-6 text-gray-900"
+    >
+      Log in <span aria-hidden="true">&rarr;</span>
+    </Link>
+  );
 }
