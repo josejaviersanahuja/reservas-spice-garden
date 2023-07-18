@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LoginButton from "./LoginButton";
 interface Props {
   isToggle?: boolean;
 }
@@ -34,12 +35,7 @@ export default function NavButtons({ isToggle }: Props) {
         </a>
       </div>
       <div className={loginClass}>
-        <Link
-          href="/login"
-          className="text-sm font-semibold leading-6 text-gray-900"
-        >
-          Log in <span aria-hidden="true">&rarr;</span>
-        </Link>
+        <LoginButton />
       </div>
     </>
   );

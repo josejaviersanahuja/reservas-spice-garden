@@ -1,6 +1,6 @@
 import Image from "next/image";
 import LoginForm from "../components/LoginForm";
-
+/*
 const fetchAlgo = () => {
   return fetch("http://localhost:3000/api/auth", {
     method: "POST",
@@ -14,9 +14,8 @@ const fetchAlgo = () => {
     cache: "no-cache",
   });
 }
-
+*/
 export default async function Login() {
-  const data = await fetchAlgo();
   return (
     <main className="flex flex-col items-center">
       <div className="flex shadow w-full max-w-lg min-h-screen flex-col justify-center border border-gray-400 border-solid lg:px-8">

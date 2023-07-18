@@ -20,9 +20,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className} id="body">
-        <Layout>
-        {children}
-        </Layout>
+        <Layout>{children}</Layout>
         <Suspense fallback={null}>
           <NavigationEvents />
         </Suspense>

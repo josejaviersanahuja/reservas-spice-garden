@@ -9,8 +9,7 @@ import { UsersService } from '../users/users.service';
 import { PureUser } from '../users/users.schema';
 
 /**
- * @deprecated
- * Resulta que por la arquitectura del frontend, usamos SSR con nextjs y no podemos usar el jwt guardado en el cliente
+ * @description JWT Strategy solo va a ser usado para el quietlogin, es decir, para validar el token que se envia en el header el cliente
  */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, JWT_STRATEGY) {
