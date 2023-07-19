@@ -1,15 +1,15 @@
-import {redirect} from 'next/navigation'
+import { redirect } from "next/navigation";
 import ProtectedRoutes from "../components/ProtectedRoutes";
 
 async function redirecBySearch(formData: FormData) {
-  "use server"
+  "use server";
   let fechaI = formData.get("fechaI") as string;
   let fechaF = formData.get("fechaF") as string;
-  
+
   if (!fechaI && !fechaF) {
     throw new Error("Fechas no válidas");
   }
-  
+
   if (!fechaI) {
     redirect(`/agendas/${fechaF}`);
   } else if (!fechaF || fechaI === fechaF) {
@@ -17,7 +17,7 @@ async function redirecBySearch(formData: FormData) {
   } else if (fechaI > fechaF) {
     [fechaI, fechaF] = [fechaF, fechaI];
   }
-  
+
   redirect(`/agendas?fechaI=${fechaI}&fechaF=${fechaF}`);
 }
 
@@ -28,7 +28,7 @@ interface Props {
 export default function AgendasLayout({ children }: Props) {
   return (
     <div className="flex flex-col items-center justify-start min-h-custom-body">
-      <form 
+      <form
         className="flex flex-col items-center md:flex-row sm:items-center sm:space-x-4"
         action={redirecBySearch}
       >

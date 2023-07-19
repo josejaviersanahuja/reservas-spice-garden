@@ -28,8 +28,10 @@ export default function useLoginForm() {
     });
 
   let router = useRouter();
-  const redirectUrl: string | undefined = getCookie("url") as string | undefined;
-  
+  const redirectUrl: string | undefined = getCookie("url") as
+    | string
+    | undefined;
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const username = usernameRef.current?.value;

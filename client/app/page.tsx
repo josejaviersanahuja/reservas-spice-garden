@@ -27,7 +27,7 @@ const loadAgendasForThisMonth = () => {
 export default async function Home() {
   const response = await loadAgendasForThisMonth();
   const agendas: Agenda[] = await response.json();
-  
+
   if (!Array.isArray(agendas)) {
     let message = "Error al cargar las agendas - ";
     const error = agendas as ServerErrorSchema;

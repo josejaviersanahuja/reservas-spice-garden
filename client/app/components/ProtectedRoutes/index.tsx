@@ -18,7 +18,7 @@ export default function ProtectedRoutes({}: Props) {
   useEffect(() => {
     if (!isAuth) {
       setCookie("url", url, {
-        expires: new Date(Date.now() + 1000 * 3)
+        expires: new Date(Date.now() + 1000 * 3),
       });
       router.push("/login");
     }
