@@ -9,20 +9,26 @@ export default function NavButtons({ isToggle }: Props) {
     ? "absolute top-20 right-3 flex flex-col gap-x-12 items-end lg:hidden"
     : "hidden lg:flex lg:gap-x-12";
   const loginClass = isToggle
-    ? "absolute top-44 right-3 flex flex-col gap-x-12 items-end lg:hidden"
+    ? "absolute top-[198px] right-3 flex flex-col gap-x-12 items-end lg:hidden"
     : "hidden lg:flex lg:flex-1 lg:justify-end";
   return (
     <>
       <div className={mainClass}>
-        <div className="relative">
-          <button
-            type="button"
-            className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
-            aria-expanded="false"
-          >
-            Agendas del Mes
-          </button>
-        </div>
+        <Link
+          href="/"
+          className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
+          aria-expanded="false"
+        >
+          Inicio
+        </Link>
+
+        <Link
+          href="/agendas"
+          className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
+          aria-expanded="false"
+        >
+          Agendas
+        </Link>
 
         <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
           Reservas

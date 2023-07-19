@@ -1,5 +1,6 @@
 import { Agenda } from "@/schemas/AgendaSchema";
 import AgendaSmallCard from "./components/AgendaSmallCard";
+import { ServerErrorSchema } from "@/schemas/ServerErrorSchema";
 
 const loadAgendasForThisMonth = () => {
   // get the starting and the end date of the current month
@@ -26,9 +27,21 @@ const loadAgendasForThisMonth = () => {
 export default async function Home() {
   const response = await loadAgendasForThisMonth();
   const agendas: Agenda[] = await response.json();
+  
+  if (!Array.isArray(agendas)) {
+    let message = "Error al cargar las agendas - ";
+    const error = agendas as ServerErrorSchema;
+    if (error.message) {
+      message += error.message;
+    }
+    if (error.statusCode) {
+      message += " - statusCode " + error.statusCode;
+    }
+    throw new Error(message);
+  }
 
   return (
-    <div className="flex min-h-custom-body flex-col items-center justify-between p-4 lg:p-0 md:p-4">
+    <div className="flex min-h-custom-body flex-col items-center justify-between p-16 lg:p-0 md:p-4 sm:p-8">
       <div>
         <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">

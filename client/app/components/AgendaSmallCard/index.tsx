@@ -1,4 +1,5 @@
 import { Agenda } from "@/schemas/AgendaSchema";
+import Link from "next/link";
 
 interface Props {
   agenda: Agenda;
@@ -35,10 +36,10 @@ export default function AgendaSmallCard({ agenda }: Props) {
         <div className="m-2 flex justify-between">
           <div className="min-h-full mr-2">
             <h3 className={linedPastDays(agenda.fecha)}>
-              <a href={"product.href"}>
+              <Link href={`/agendas/${agenda.fecha}`}>
                 <span aria-hidden="true" className="absolute inset-0" />
                 {agenda.fecha}
-              </a>
+              </Link>
             </h3>
             <p className="mt-1 text-sm text-gray-500">{agenda.themeName}</p>
           </div>

@@ -28,7 +28,8 @@ export default function useLoginForm() {
     });
 
   let router = useRouter();
-
+  const redirectUrl: string | undefined = getCookie("url") as string | undefined;
+  
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const username = usernameRef.current?.value;
@@ -53,7 +54,7 @@ export default function useLoginForm() {
           });
           setUser(data.user);
           notifySuccess("Bienvenido " + data.user.username);
-          router.replace("/");
+          router.replace(redirectUrl ? redirectUrl : "/");
         })
         .catch((error) => {
           notifyError(error.message + " - statusCode " + error.statusCode);
@@ -92,7 +93,8 @@ export default function useLoginForm() {
 
           setUser(data);
           notifySuccess("Login Automático: Bienvenido " + data.username);
-          router.replace("/");
+
+          router.replace(redirectUrl ? redirectUrl : "/");
         })
         .catch((error) => {
           notifyError(error.message + " - statusCode " + error.statusCode);
