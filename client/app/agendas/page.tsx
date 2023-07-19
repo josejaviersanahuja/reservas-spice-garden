@@ -1,10 +1,8 @@
 import { Agenda } from "@/schemas/AgendaSchema";
-import {} from "next/navigation";
+import AgendasList from "../components/AgendasList";
+
 interface Props {
-  params: {
-    fechaI: string | undefined;
-    fechaF: string | undefined;
-  };
+  searchParams:  { [key: string]: string | string[] | undefined };
 }
 
 async function loadAgendasByQueryParams(props: {
@@ -25,12 +23,10 @@ async function loadAgendasByQueryParams(props: {
   );
 }
 
-export default async function Agendas({ params }: Props) {
-  console.log(params, "Debugging params");
-
-  let fechaI = params.fechaI ?? "";
-  let fechaF = params.fechaF ?? "";
-  if (!params.fechaI && !params.fechaF) {
+export default async function Agendas({ searchParams }: Props) {
+  let fechaI = searchParams.fechaI as string ?? "";
+  let fechaF = searchParams.fechaF as string ?? "";
+  if (!searchParams.fechaI && !searchParams.fechaF) {
     const thisMonth = new Date();
     thisMonth.setDate(1);
     fechaI = thisMonth.toISOString().substring(0, 10);
@@ -47,7 +43,6 @@ export default async function Agendas({ params }: Props) {
     throw new Error(res.message + " - statusCode " + res.statusCode);
   }
   const agendas: Agenda[] = res;
-  // console.log(agendas, 'Debugging agendas');
 
   if (agendas.length === 0) {
     return (
@@ -58,7 +53,7 @@ export default async function Agendas({ params }: Props) {
   }
   return (
     <section>
-      Esto es la page de Agendas del {fechaI} al {fechaF}
+      <AgendasList agendas={agendas} title={`Agendas del ${fechaI} al ${fechaF}`} />
     </section>
   );
 }
