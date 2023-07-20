@@ -1,3 +1,4 @@
+import AgendaForm from "@/app/components/AgendaForm";
 import { Agenda } from "@/schemas/AgendaSchema";
 import { log } from "console";
 
@@ -29,5 +30,16 @@ export default async function Agenda({ params }: Props) {
   }
   const agenda: Agenda = res;
   console.log(agenda);
-  return <section>Esta es la agenda con fecha {params.fecha}</section>;
+  return <section>
+    <div className="flex min-h-custom-body flex-col items-center justify-between p-16 lg:p-0 md:p-4 sm:p-8">
+      <div>
+        <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12 lg:max-w-7xl lg:px-8">
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+          Esta es la agenda con fecha {params.fecha}
+          </h2>
+          <AgendaForm />
+        </div>
+        </div>
+        </div>
+    </section>;
 }

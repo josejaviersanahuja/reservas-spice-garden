@@ -44,16 +44,19 @@ export default async function Agendas({ searchParams }: Props) {
   }
   const agendas: Agenda[] = res;
 
+  const fechaFLimit = new Date(fechaF);
+  fechaFLimit.setDate(fechaFLimit.getDate() - 1);
+
   if (agendas.length === 0) {
     return (
       <section>
-        No hay agendas para mostrar del {fechaI} al {fechaF}
+        No hay agendas para mostrar del {fechaI} al {fechaFLimit.toISOString().substring(0, 10)}
       </section>
     );
   }
   return (
     <section>
-      <AgendasList agendas={agendas} title={`Agendas del ${fechaI} al ${fechaF}`} />
+      <AgendasList agendas={agendas} title={`Agendas del ${fechaI} al ${fechaFLimit.toISOString().substring(0,10)}`} />
     </section>
   );
 }
