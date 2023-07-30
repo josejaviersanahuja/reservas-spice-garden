@@ -2,19 +2,19 @@ export interface Agenda {
   fecha: string;
   themeName: "Restaurante Mexicano";
   imageUrl: string;
-  '19:00': number;
-  '19:15': number;
-  '19:30': number;
-  '19:45': number;
-  '20:00': number;
-  '20:15': number;
-  '20:30': number;
-  '20:45': number;
-  '21:00': number;
-  '21:15': number;
-  '21:30': number;
-  '21:45': number;
-  '22:00': number;
+  "19:00": number;
+  "19:15": number;
+  "19:30": number;
+  "19:45": number;
+  "20:00": number;
+  "20:15": number;
+  "20:30": number;
+  "20:45": number;
+  "21:00": number;
+  "21:15": number;
+  "21:30": number;
+  "21:45": number;
+  "22:00": number;
 }
 
 export enum TIME_OPTIONS {

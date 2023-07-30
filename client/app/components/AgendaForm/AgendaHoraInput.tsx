@@ -6,7 +6,11 @@ interface Props {
   isDisable?: boolean;
 }
 
-export default function AgendaHoraInput({ hora, defaultValue, isDisable = false }: Props) {
+export default function AgendaHoraInput({
+  hora,
+  defaultValue,
+  isDisable = false,
+}: Props) {
   return (
     <div className="sm:col-span-2">
       <label
