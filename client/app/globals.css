@@ -57,3 +57,11 @@ body {
 .hide-content {
   opacity: 0;
 }
+
+button[type="submit"]:disabled {
+  opacity: 0.5;
+}
+
+input:disabled {
+  opacity: .5;
+}

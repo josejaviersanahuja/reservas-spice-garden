@@ -22,7 +22,8 @@ BEGIN
             '21:00', a.t2100,
             '21:15', a.t2115,
             '21:30', a.t2130,
-            '21:45', a.t2145
+            '21:45', a.t2145,
+            '22:00', a.t2200
         ) INTO agenda_info
     FROM
         agenda AS a
@@ -85,7 +86,8 @@ BEGIN
             '21:00', a.t2100,
             '21:15', a.t2115,
             '21:30', a.t2130,
-            '21:45', a.t2145
+            '21:45', a.t2145,
+            '22:00', a.t2200
         ) INTO agenda_info
     FROM
         agenda a
@@ -115,7 +117,8 @@ CREATE OR REPLACE FUNCTION update_agenda(_fecha DATE, _restaurant_theme_id INTEG
                                         _t2000 INTEGER DEFAULT NULL, _t2015 INTEGER DEFAULT NULL,
                                         _t2030 INTEGER DEFAULT NULL, _t2045 INTEGER DEFAULT NULL,
                                         _t2100 INTEGER DEFAULT NULL, _t2115 INTEGER DEFAULT NULL,
-                                        _t2130 INTEGER DEFAULT NULL, _t2145 INTEGER DEFAULT NULL)
+                                        _t2130 INTEGER DEFAULT NULL, _t2145 INTEGER DEFAULT NULL,
+                                        _t2200 INTEGER DEFAULT NULL)
 RETURNS JSON AS $$
 DECLARE
     agenda_info JSON;
@@ -146,6 +149,7 @@ BEGIN
         t2115 = COALESCE(_t2115, agenda.t2115),
         t2130 = COALESCE(_t2130, agenda.t2130),
         t2145 = COALESCE(_t2145, agenda.t2145),
+        t2200 = COALESCE(_t2200, agenda.t2200),
         updated_at = NOW()
     WHERE
         agenda.fecha = _fecha;
@@ -169,7 +173,8 @@ BEGIN
                 '21:00', a.t2100,
                 '21:15', a.t2115,
                 '21:30', a.t2130,
-                '21:45', a.t2145
+                '21:45', a.t2145,
+                '22:00', a.t2200
             ) INTO agenda_info
         FROM
             agenda a
@@ -249,7 +254,8 @@ BEGIN
                 't2100', a.t2100,
                 't2115', a.t2115,
                 't2130', a.t2130,
-                't2145', a.t2145
+                't2145', a.t2145,
+                't2200', a.t2200
             ) ORDER BY a.fecha ASC
         ) INTO agenda_info
     FROM

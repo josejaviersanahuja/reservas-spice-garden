@@ -28,6 +28,7 @@ export enum TIME_OPTIONS {
   t2115 = '21:15',
   t2130 = '21:30',
   t2145 = '21:45',
+  t2200 = '22:00',
 }
 
 export enum ROOM_OPTIONS {

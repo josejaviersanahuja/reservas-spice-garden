@@ -64,6 +64,11 @@ export const AgendaPatchQueryBuilder = (fecha: string, dto: AgendaPatchDTO) => {
   }
   if (dto['21:45']) {
     query += `, ${dto['21:45']}`;
+  } else {
+    query += `, null`;
+  }
+  if (dto['22:00']) {
+    query += `, ${dto['22:00']}`;
   }
   query += `) as result`;
   return query;

@@ -3,10 +3,10 @@ import AgendaSmallCard from "../AgendaSmallCard";
 
 interface Props {
   agendas: Agenda[];
-  title: string
+  title: string;
 }
 
-export default function AgendasList({agendas, title}: Props) {
+export default function AgendasList({ agendas, title }: Props) {
   return (
     <div className="flex min-h-custom-body flex-col items-center justify-between p-16 lg:p-0 md:p-4 sm:p-8">
       <div>
@@ -23,5 +23,5 @@ export default function AgendasList({agendas, title}: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }

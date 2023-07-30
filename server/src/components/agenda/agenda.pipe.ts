@@ -18,7 +18,8 @@ export class ValidateAgendaPatchDTOPipe implements PipeTransform {
       !value['21:00'] &&
       !value['21:15'] &&
       !value['21:30'] &&
-      !value['21:45']
+      !value['21:45'] &&
+      !value['22:00']
     ) {
       throw new BadRequestException(`At least one field must be provided`);
     }

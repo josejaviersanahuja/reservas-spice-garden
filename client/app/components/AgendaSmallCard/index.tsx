@@ -1,4 +1,5 @@
 import { Agenda } from "@/schemas/AgendaSchema";
+import { isPastDate } from "@/utils/fechas";
 import Link from "next/link";
 
 interface Props {
@@ -18,11 +19,9 @@ export default function AgendaSmallCard({ agenda }: Props) {
     );
   };
 
-  const fecha = new Date();
   const linedPastDays = (fechaString: string) => {
-    const thisFecha = new Date(fechaString);
     let className = "text-sm text-gray-700";
-    if (thisFecha < fecha) {
+    if (isPastDate(fechaString)) {
       className += " line-through";
     }
     return className;

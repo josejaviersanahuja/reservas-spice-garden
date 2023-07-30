@@ -2,7 +2,7 @@ import { Agenda } from "@/schemas/AgendaSchema";
 import AgendasList from "../components/AgendasList";
 
 interface Props {
-  searchParams:  { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 async function loadAgendasByQueryParams(props: {
@@ -24,8 +24,8 @@ async function loadAgendasByQueryParams(props: {
 }
 
 export default async function Agendas({ searchParams }: Props) {
-  let fechaI = searchParams.fechaI as string ?? "";
-  let fechaF = searchParams.fechaF as string ?? "";
+  let fechaI = (searchParams.fechaI as string) ?? "";
+  let fechaF = (searchParams.fechaF as string) ?? "";
   if (!searchParams.fechaI && !searchParams.fechaF) {
     const thisMonth = new Date();
     thisMonth.setDate(1);
@@ -50,13 +50,19 @@ export default async function Agendas({ searchParams }: Props) {
   if (agendas.length === 0) {
     return (
       <section>
-        No hay agendas para mostrar del {fechaI} al {fechaFLimit.toISOString().substring(0, 10)}
+        No hay agendas para mostrar del {fechaI} al{" "}
+        {fechaFLimit.toISOString().substring(0, 10)}
       </section>
     );
   }
   return (
     <section>
-      <AgendasList agendas={agendas} title={`Agendas del ${fechaI} al ${fechaFLimit.toISOString().substring(0,10)}`} />
+      <AgendasList
+        agendas={agendas}
+        title={`Agendas del ${fechaI} al ${fechaFLimit
+          .toISOString()
+          .substring(0, 10)}`}
+      />
     </section>
   );
 }

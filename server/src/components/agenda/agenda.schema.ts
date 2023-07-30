@@ -54,6 +54,9 @@ export class PureAgenda {
   @IsInt()
   @Min(0)
   readonly t2145: number;
+  @IsInt()
+  @Min(0)
+  readonly t2200: number;
   @IsDate()
   readonly created_at: Date;
   @IsDate()
@@ -106,6 +109,9 @@ export class Agenda {
   @IsInt()
   @Min(0)
   readonly '21:45': number;
+  @IsInt()
+  @Min(0)
+  readonly '22:00': number;
 }
 
 export class AgendaPostDTO {
@@ -180,6 +186,10 @@ export class AgendaPatchDTO {
   @IsInt()
   @Min(0)
   readonly '21:45'?: number | undefined;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  readonly '22:00'?: number | undefined;
 }
 
 export class Availability {
