@@ -1,6 +1,6 @@
 export interface Agenda {
   fecha: string;
-  themeName: "Restaurante Mexicano";
+  themeName: string;
   imageUrl: string;
   "19:00": number;
   "19:15": number;

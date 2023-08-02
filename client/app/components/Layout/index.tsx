@@ -1,4 +1,5 @@
 import Image from "next/image";
+
 import NavButtons from "./NavButtons";
 import ToggleMenu from "./ToggleMenu";
 

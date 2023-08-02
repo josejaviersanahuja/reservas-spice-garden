@@ -1,13 +1,24 @@
 import { Agenda, TIME_OPTIONS } from "@/schemas/AgendaSchema";
 import AgendaHoraInput from "./AgendaHoraInput";
 import { isPastDate } from "@/utils/fechas";
+import { RestaurantTheme } from "@/schemas/RestaurantThemes";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 interface Props {
   agenda: Agenda;
+  allThemes: RestaurantTheme[];
+  isNewAgenda?: boolean;
 }
 
-export default function AgendaForm({ agenda }: Props) {
+export default function AgendaForm({
+  agenda,
+  allThemes,
+  isNewAgenda = false,
+}: Props) {
   const isInThePast = isPastDate(agenda.fecha);
+  const selectDefault = allThemes.find(
+    (theme) => theme.theme_name === agenda.themeName,
+  );
   return (
     <form>
       <div className="space-y-12">
@@ -16,7 +27,49 @@ export default function AgendaForm({ agenda }: Props) {
             {agenda.themeName}
           </h2>
         </div>
-        {/* TODO input para cambiar el theme */}
+        {isNewAgenda && (
+          <div className="sm:col-span-2">
+            <label
+              htmlFor="fecha"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Fecha
+            </label>
+            <div className="mt-2">
+              <input
+                type="date"
+                name="fecha"
+                id="fecha"
+                className="block w-72 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+          </div>
+        )}
+        <div className="sm:col-span-2">
+          <label
+            htmlFor="theme"
+            className="block text-sm font-medium leading-6 text-gray-900"
+          >
+            Tema
+          </label>
+          <div className="mt-2">
+            <select
+              name={"theme"}
+              id={"theme"}
+              disabled={isInThePast}
+              className="block w-72 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              defaultValue={selectDefault?.id ?? 0}
+            >
+              <option value={0}>Selecciona un tema</option>
+              {allThemes.map((theme) => (
+                <option key={theme.id} value={theme.id}>
+                  {theme.theme_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="border-b border-gray-900/10 pb-12">
           <div className="mt-10 grid grid-cols-3 gap-x-6 gap-y-8 sm:grid-cols-12">
             <AgendaHoraInput
@@ -88,6 +141,12 @@ export default function AgendaForm({ agenda }: Props) {
         </div>
       </div>
       <div className="mt-6 flex items-center justify-end gap-x-6">
+        {isInThePast && (
+          <p className="flex items-center text-red-500">
+            <InformationCircleIcon className="w-8 inline" /> No se puede
+            modificar una agenda del pasado
+          </p>
+        )}
         <button
           type="button"
           className="text-sm font-semibold leading-6 text-gray-900"

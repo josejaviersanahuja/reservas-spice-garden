@@ -65,3 +65,7 @@ button[type="submit"]:disabled {
 input:disabled {
   opacity: 0.5;
 }
+
+select:disabled {
+  opacity: 0.5;
+}
