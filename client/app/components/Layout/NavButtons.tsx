@@ -24,7 +24,7 @@ export default function NavButtons({ isToggle }: Props) {
     {
       name: "Nueva Agenda",
       description: "Crea una nueva agenda",
-      href: "/agendas/nueva",
+      href: "/agendas/nueva/normal",
       icon: NewspaperIcon,
     },
     {
@@ -45,7 +45,7 @@ export default function NavButtons({ isToggle }: Props) {
         >
           Inicio
         </Link>
-        <Popover.Group className="hidden lg:flex lg:gap-x-12">
+        <Popover.Group className="lg:flex lg:gap-x-12">
           <Popover className="relative">
             <Popover.Button className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
               Agendas
@@ -64,7 +64,7 @@ export default function NavButtons({ isToggle }: Props) {
               leaveFrom="opacity-100 translate-y-0"
               leaveTo="opacity-0 translate-y-1"
             >
-              <Popover.Panel className="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
+              <Popover.Panel className="absolute -left-[362px] top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 lg:-left-8">
                 <div className="p-4">
                   {agendasSubmenu.map((item) => (
                     <div

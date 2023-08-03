@@ -42,6 +42,7 @@ export default function AgendaForm({
                 id="fecha"
                 className="block w-72 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 min={new Date().toISOString().split("T")[0]}
+                required
               />
             </div>
           </div>
@@ -59,9 +60,12 @@ export default function AgendaForm({
               id={"theme"}
               disabled={isInThePast}
               className="block w-72 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              defaultValue={selectDefault?.id ?? 0}
+              defaultValue={selectDefault?.id ?? undefined}
+              required
             >
-              <option value={0}>Selecciona un tema</option>
+              <option value={0} disabled>
+                Selecciona un tema
+              </option>
               {allThemes.map((theme) => (
                 <option key={theme.id} value={theme.id}>
                   {theme.theme_name}
